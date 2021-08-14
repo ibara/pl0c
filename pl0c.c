@@ -18,7 +18,6 @@
 
 #include <ctype.h>
 #include <fcntl.h>
-#include <libgen.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -77,8 +76,7 @@
  *		| "(" expression ")" .
  */
 
-static FILE *fp;
-static char *fname, *pname, *raw, *token;
+static char *pname, *raw, *token;
 static int depth, first, proc, tok;
 static size_t len, line = 1;
 
@@ -109,9 +107,6 @@ error(const char *fmt, ...)
 
 	(void) fputc('\n', stderr);
 
-	if (fname != NULL)
-		(void) unlink(fname);
-
 	exit(1);
 }
 
@@ -138,13 +133,6 @@ openall(char *file)
 	raw[st.st_size] = '\0';
 
 	(void) close(fd);
-
-	file[strlen(file) - 3] = 'c';
-	file[strlen(file) - 2] = '\0';
-	if ((fp = fopen(basename(file), "w+")) == NULL)
-		error("couldn't open %s", basename(file));
-
-	fname = basename(file);
 }
 
 /*
@@ -319,7 +307,7 @@ aout(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void) vfprintf(fp, fmt, ap);
+	(void) vfprintf(stdout, fmt, ap);
 	va_end(ap);
 }
 
@@ -855,7 +843,6 @@ main(int argc, char *argv[])
 	parse();
 
 	free(startp);
-	(void) fclose(fp);
 
 	return 0;
 }
