@@ -111,7 +111,7 @@ error(const char *fmt, ...)
 }
 
 static void
-openall(char *file)
+readin(char *file)
 {
 	int fd;
 	struct stat st;
@@ -835,7 +835,7 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
-	openall(argv[1]);
+	readin(argv[1]);
 	startp = raw;
 
 	initsymtab();
