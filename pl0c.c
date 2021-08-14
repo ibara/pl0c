@@ -829,7 +829,6 @@ parse(void)
 int
 main(int argc, char *argv[])
 {
-	struct symtab *curr;
 	char *startp;
 
 	if (argc != 2) {
