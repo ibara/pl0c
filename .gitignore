@@ -1,0 +1,4 @@
+pl0c
+*.o
+*.core
+fib.c
