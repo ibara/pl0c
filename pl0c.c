@@ -343,10 +343,12 @@ static void
 cg_epilogue(void)
 {
 
+	aout(";");
+
 	if (proc == 0)
 		aout("return 0;");
 
-	aout("}\n\n");
+	aout("\n}\n\n");
 }
 
 static void
@@ -392,7 +394,7 @@ cg_symbol(void)
 		aout("{\n");
 		break;
 	case TOK_END:
-		aout(";}\n");
+		aout(";\n}\n");
 		break;
 	case TOK_IF:
 		aout("if(");
@@ -562,9 +564,9 @@ initsymtab(void)
 	if ((new = malloc(sizeof(struct symtab))) == NULL)
 		error("malloc failed");
 
-	new->depth = 0;
+	new->depth = -1;
 	new->type = TOK_PROCEDURE;
-	new->name = "_start";
+	new->name = "@";
 	new->next = NULL;
 
 	head = new;
