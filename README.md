@@ -12,4 +12,5 @@ for the beginner.
 
 TODO
 ----
-* Implement some sort of basic I/O extension
+* Implement reading `stdin`
+* Implement writing characters and strings

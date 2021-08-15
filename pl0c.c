@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define PL0C_VERSION	"1.0.0"
+#define PL0C_VERSION	"1.1.0"
 
 #define TOK_IDENT	'I'
 #define TOK_NUMBER	'N'
@@ -40,6 +40,7 @@
 #define TOK_WHILE	'W'
 #define TOK_DO		'D'
 #define TOK_ODD		'O'
+#define TOK_WRITEINT	'w'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -66,7 +67,8 @@
  *		  | "call" ident
  *		  | "begin" statement { ";" statement } "end"
  *		  | "if" condition "then" statement
- *		  | "while" condition "do" statement ] .
+ *		  | "while" condition "do" statement
+ *		  | "writeInt" ( ident | number ) ] .
  * condition	= "odd" expression
  *		| expression ( "=" | "#" | "<" | ">" ) expression .
  * expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
@@ -198,6 +200,8 @@ ident(void)
 		return TOK_DO;
 	else if (!strcmp(token, "odd"))
 		return TOK_ODD;
+	else if (!strcmp(token, "writeInt"))
+		return TOK_WRITEINT;
 
 	return TOK_IDENT;
 }
@@ -340,6 +344,13 @@ cg_epilogue(void)
 }
 
 static void
+cg_init(void)
+{
+
+	aout("#include <stdio.h>\n\n");
+}
+
+static void
 cg_odd(void)
 {
 
@@ -454,6 +465,13 @@ cg_var_start(void)
 {
 
 	aout("long ");
+}
+
+static void
+cg_writeint(void)
+{
+
+	aout("(void) fprintf(stdout, \"%%ld\\n\", (long) %s);", token);
 }
 
 /*
@@ -709,6 +727,18 @@ statement(void)
 			cg_symbol();
 		expect(TOK_DO);
 		statement();
+		break;
+	case TOK_WRITEINT:
+		expect(TOK_WRITEINT);
+		if (type == TOK_IDENT || type == TOK_NUMBER)
+			cg_writeint();
+
+		if (type == TOK_IDENT)
+			expect(TOK_IDENT);
+		else if (type == TOK_NUMBER)
+			expect(TOK_NUMBER);
+		else
+			error("writeInt takes an identifier or a number");
 	}
 }
 
@@ -799,6 +829,8 @@ block(void)
 static void
 parse(void)
 {
+
+	cg_init();
 
 	next();
 	block();
