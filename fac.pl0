@@ -1,5 +1,5 @@
 {
-  Fibonacci
+  Factorial
 }
 var n, f;
 
@@ -9,6 +9,7 @@ begin
   while n # 16 do { loop }
   begin
     n := n + 1;
-    f := f * n
+    f := f * n;
+    writeInt f
   end;
 end.
