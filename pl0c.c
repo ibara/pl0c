@@ -215,9 +215,6 @@ number(void)
 
 	len = raw - p;
 
-	if (isalpha(*raw))
-		error("unknown character at end of number: '%c'", *raw);
-
 	--raw;
 
 	free(token);
