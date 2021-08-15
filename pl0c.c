@@ -27,33 +27,33 @@
 
 #define PL0C_VERSION	"1.0.0"
 
-#define TOK_IDENT	256
-#define TOK_NUMBER	257
-#define TOK_CONST	258
-#define TOK_VAR		259
-#define TOK_PROCEDURE	260
-#define TOK_CALL	261
-#define TOK_BEGIN	262
-#define TOK_END		263
-#define TOK_IF		264
-#define TOK_THEN	265
-#define TOK_WHILE	266
-#define TOK_DO		267
-#define TOK_ODD		268
-#define TOK_DOT		269
-#define TOK_EQUAL	270
-#define TOK_COMMA	271
-#define TOK_SEMICOLON	272
-#define TOK_ASSIGN	273
-#define TOK_HASH	274
-#define TOK_LESSTHAN	275
-#define TOK_GREATERTHAN	276
-#define TOK_PLUS	277
-#define TOK_MINUS	278
-#define TOK_MULTIPLY	279
-#define TOK_DIVIDE	280
-#define TOK_LPAREN	281
-#define TOK_RPAREN	282
+#define TOK_IDENT	'I'
+#define TOK_NUMBER	'N'
+#define TOK_CONST	'C'
+#define TOK_VAR		'V'
+#define TOK_PROCEDURE	'P'
+#define TOK_CALL	'c'
+#define TOK_BEGIN	'B'
+#define TOK_END		'E'
+#define TOK_IF		'i'
+#define TOK_THEN	'T'
+#define TOK_WHILE	'W'
+#define TOK_DO		'D'
+#define TOK_ODD		'O'
+#define TOK_DOT		'.'
+#define TOK_EQUAL	'='
+#define TOK_COMMA	','
+#define TOK_SEMICOLON	';'
+#define TOK_ASSIGN	':'
+#define TOK_HASH	'#'
+#define TOK_LESSTHAN	'<'
+#define TOK_GREATERTHAN	'>'
+#define TOK_PLUS	'+'
+#define TOK_MINUS	'-'
+#define TOK_MULTIPLY	'*'
+#define TOK_DIVIDE	'/'
+#define TOK_LPAREN	'('
+#define TOK_RPAREN	')'
 
 /*
  * pl0c -- PL/0 compiler.
@@ -261,36 +261,24 @@ again:
 		comment();
 		goto again;
 	case '.':
-		return TOK_DOT;
 	case '=':
-		return TOK_EQUAL;
 	case ',':
-		return TOK_COMMA;
 	case ';':
-		return TOK_SEMICOLON;
+	case '#':
+	case '<':
+	case '>':
+	case '+':
+	case '-':
+	case '*':
+	case '/':
+	case '(':
+	case ')':
+		return (*raw);
 	case ':':
 		if (*++raw != '=')
 			error("unknown token: ':%c'", *raw);
 
 		return TOK_ASSIGN;
-	case '#':
-		return TOK_HASH;
-	case '<':
-		return TOK_LESSTHAN;
-	case '>':
-		return TOK_GREATERTHAN;
-	case '+':
-		return TOK_PLUS;
-	case '-':
-		return TOK_MINUS;
-	case '*':
-		return TOK_MULTIPLY;
-	case '/':
-		return TOK_DIVIDE;
-	case '(':
-		return TOK_LPAREN;
-	case ')':
-		return TOK_RPAREN;
 	case '\0':
 		return 0;
 	default:
