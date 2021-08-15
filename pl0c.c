@@ -207,15 +207,15 @@ number(void)
 {
 	const char *errstr;
 	char *p;
-	size_t i;
+	size_t i, j = 0;
 
 	p = raw;
-	while (isdigit(*raw))
+	while (isdigit(*raw) || *raw == '_')
 		++raw;
 
 	len = raw - p;
 
-	if (isalpha(*raw) || *raw == '_')
+	if (isalpha(*raw))
 		error("unknown character at end of number: '%c'", *raw);
 
 	--raw;
@@ -225,9 +225,12 @@ number(void)
 	if ((token = malloc(len + 1)) == NULL)
 		error("malloc failed");
 
-	for (i = 0; i < len; i++)
-		token[i] = *p++;
-	token[i] = '\0';
+	for (i = 0; i < len; i++) {
+		if (isdigit(*p))
+			token[j++] = *p;
+		++p;
+	}
+	token[j] = '\0';
 
 	(void) strtonum(token, 0, LONG_MAX, &errstr);
 	if (errstr != NULL)
