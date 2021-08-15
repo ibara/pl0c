@@ -78,7 +78,7 @@
 
 static char *pname, *raw, *token;
 static int depth, first, proc, tok;
-static size_t len, line = 1;
+static size_t line = 1;
 
 struct symtab {
 	int depth;
@@ -157,7 +157,7 @@ static int
 ident(void)
 {
 	char *p;
-	size_t i;
+	size_t i, len;
 
 	p = raw;
 	while (isalnum(*raw) || *raw == '_')
@@ -207,7 +207,7 @@ number(void)
 {
 	const char *errstr;
 	char *p;
-	size_t i, j = 0;
+	size_t i, j = 0, len;
 
 	p = raw;
 	while (isdigit(*raw) || *raw == '_')
