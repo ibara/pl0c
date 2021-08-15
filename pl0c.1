@@ -1,0 +1,109 @@
+.\"
+.\" pl0c - PL/0 compiler
+.\"
+.\" Copyright (c) 2021 Brian Callahan <bcallah@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd August 15, 2021
+.Dt PL0C 1
+.Os
+.Sh NAME
+.Nm pl0c
+.Nd PL/0 compiler
+.Sh SYNOPSIS
+.Nm
+.Ar file.pl0
+.Sh DESCRIPTION
+.Nm
+is a utility that compiles PL/0 code to equivalent C code.
+.Nm
+reads input from
+.Ar file.pl0
+and outputs to
+.Ar stdout .
+.Sh GRAMMAR
+The PL/0 grammar is as follows:
+.Pp
+program		= block "." .
+.br
+block		= [ "const" id "=" number { "," id "=" number } ";" ]
+.br
+			  [ "var" id { "," id } ";" ]
+.br
+			  { "procedure" id ";" block ";" } statement .
+.br
+statement		= [ id ":=" expression
+.br
+			  | "call" id
+.br
+			  | "begin" statement { ";" statement } "end"
+.br
+			  | "if" condition "then" statement
+.br
+			  | "while" condition "do" statement
+.br
+			  | "writeInt" ( id | number ) ] .
+.br
+condition		= "odd" expression
+.br
+			| expression ( "=" | "#" | "<" | ">" ) expression .
+.br
+expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
+.br
+term			= factor { ( "*" | "/" ) factor } .
+.br
+factor		= id
+.br
+			| number
+.br
+			| "(" expression ")" .
+.Sh EXIT STATUS
+The
+.Nm
+utility exits 0 on success, and >0 if an error occurs.
+.Sh EXAMPLES
+The following program prints the first 16 factorials:
+.Pp
+var n, f;
+.Pp
+begin
+.br
+  n := 0;
+.br
+  f := 1;
+.br
+  while n # 16 do
+.br
+  begin
+.br
+    n := n + 1;
+.br
+    f := f * n;
+.br
+    writeInt f
+.br
+  end;
+.br
+end.
+.Pp
+The output of
+.Nm
+can be piped into a C compiler, like so:
+.Bl -tag -offset indent -width Ds
+.It pl0c file.pl0 | cc -O -o file -x c -
+.El
+.Sh AUTHORS
+.Nm
+was written by
+.An Brian Callahan Aq Mt bcallah@openbsd.org .
