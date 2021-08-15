@@ -77,7 +77,7 @@
  */
 
 static char *pname, *raw, *token;
-static int depth, first, proc, tok;
+static int depth, first, proc, type;
 static size_t line = 1;
 
 struct symtab {
@@ -372,7 +372,7 @@ static void
 cg_symbol(void)
 {
 
-	switch (tok) {
+	switch (type) {
 	case TOK_IDENT:
 	case TOK_NUMBER:
 	case TOK_CONST:
@@ -484,7 +484,7 @@ static void
 next(void)
 {
 
-	tok = lex();
+	type = lex();
 	++raw;
 }
 
@@ -492,7 +492,7 @@ static void
 expect(int match)
 {
 
-	if (match != tok)
+	if (match != type)
 		error("syntax error");
 
 	next();
@@ -581,7 +581,7 @@ static void
 factor(void)
 {
 
-	switch (tok) {
+	switch (type) {
 	case TOK_IDENT:
 		symcheck();
 		/* Fallthru */
@@ -593,7 +593,7 @@ factor(void)
 		cg_symbol();
 		expect(TOK_LPAREN);
 		expression();
-		if (tok == TOK_RPAREN)
+		if (type == TOK_RPAREN)
 			cg_symbol();
 		expect(TOK_RPAREN);
 	}
@@ -605,7 +605,7 @@ term(void)
 
 	factor();
 
-	while (tok == TOK_MULTIPLY || tok == TOK_DIVIDE) {
+	while (type == TOK_MULTIPLY || type == TOK_DIVIDE) {
 		cg_symbol();
 		next();
 		factor();
@@ -616,14 +616,14 @@ static void
 expression(void)
 {
 
-	if (tok == TOK_PLUS || tok == TOK_MINUS) {
+	if (type == TOK_PLUS || type == TOK_MINUS) {
 		cg_symbol();
 		next();
 	}
 
 	term();
 
-	while (tok == TOK_PLUS || tok == TOK_MINUS) {
+	while (type == TOK_PLUS || type == TOK_MINUS) {
 		cg_symbol();
 		next();
 		term();
@@ -634,7 +634,7 @@ static void
 condition(void)
 {
 
-	if (tok == TOK_ODD) {
+	if (type == TOK_ODD) {
 		cg_symbol();
 		expect(TOK_ODD);
 		expression();
@@ -642,7 +642,7 @@ condition(void)
 	} else {
 		expression();
 
-		switch (tok) {
+		switch (type) {
 		case TOK_EQUAL:
 		case TOK_HASH:
 		case TOK_LESSTHAN:
@@ -663,19 +663,19 @@ statement(void)
 {
 	struct symtab *left;
 
-	switch (tok) {
+	switch (type) {
 	case TOK_IDENT:
 		symcheck();
 		cg_symbol();
 		expect(TOK_IDENT);
-		if (tok == TOK_ASSIGN)
+		if (type == TOK_ASSIGN)
 			cg_symbol();
 		expect(TOK_ASSIGN);
 		expression();
 		break;
 	case TOK_CALL:
 		expect(TOK_CALL);
-		if (tok == TOK_IDENT)
+		if (type == TOK_IDENT)
 			cg_call();
 		expect(TOK_IDENT);
 		break;
@@ -683,12 +683,12 @@ statement(void)
 		cg_symbol();
 		expect(TOK_BEGIN);
 		statement();
-		while (tok == TOK_SEMICOLON) {
+		while (type == TOK_SEMICOLON) {
 			cg_semicolon();
 			expect(TOK_SEMICOLON);
 			statement();
 		}
-		if (tok == TOK_END)
+		if (type == TOK_END)
 			cg_symbol();
 		expect(TOK_END);
 		break;
@@ -696,7 +696,7 @@ statement(void)
 		cg_symbol();
 		expect(TOK_IF);
 		condition();
-		if (tok == TOK_THEN)
+		if (type == TOK_THEN)
 			cg_symbol();
 		expect(TOK_THEN);
 		statement();
@@ -705,7 +705,7 @@ statement(void)
 		cg_symbol();
 		expect(TOK_WHILE);
 		condition();
-		if (tok == TOK_DO)
+		if (type == TOK_DO)
 			cg_symbol();
 		expect(TOK_DO);
 		statement();
@@ -721,24 +721,24 @@ block(void)
 	if (depth++ > 1)
 		error("nesting depth exceeded");
 
-	if (tok == TOK_CONST) {
+	if (type == TOK_CONST) {
 		expect(TOK_CONST);
-		if (tok == TOK_IDENT)
+		if (type == TOK_IDENT)
 			cg_const();
 		addsymbol(TOK_CONST);
 		expect(TOK_EQUAL);
-		if (tok == TOK_NUMBER) {
+		if (type == TOK_NUMBER) {
 			cg_symbol();
 			cg_semicolon();
 		}
 		checkconst();
-		while (tok == TOK_COMMA) {
+		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
-			if (tok == TOK_IDENT)
+			if (type == TOK_IDENT)
 				cg_const();
 			addsymbol(TOK_CONST);
 			expect(TOK_EQUAL);
-			if (tok == TOK_NUMBER) {
+			if (type == TOK_NUMBER) {
 				cg_symbol();
 				cg_semicolon();
 			}
@@ -747,15 +747,15 @@ block(void)
 		expect(TOK_SEMICOLON);
 	}
 
-	if (tok == TOK_VAR) {
+	if (type == TOK_VAR) {
 		cg_var_start();
 		expect(TOK_VAR);
-		if (tok == TOK_IDENT)
+		if (type == TOK_IDENT)
 			cg_var_first();
 		addsymbol(TOK_VAR);
-		while (tok == TOK_COMMA) {
+		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
-			if (tok == TOK_IDENT)
+			if (type == TOK_IDENT)
 				cg_var_more();
 			addsymbol(TOK_VAR);
 		}
@@ -764,11 +764,11 @@ block(void)
 		cg_crlf();
 	}
 
-	while (tok == TOK_PROCEDURE) {
+	while (type == TOK_PROCEDURE) {
 		proc = 1;
 
 		expect(TOK_PROCEDURE);
-		if (tok == TOK_IDENT)
+		if (type == TOK_IDENT)
 			pname = strdup(token);
 		addsymbol(TOK_PROCEDURE);
 		cg_prologue();
@@ -804,7 +804,7 @@ parse(void)
 	block();
 	expect(TOK_DOT);
 
-	if (tok != 0)
+	if (type != 0)
 		error("extra tokens at end of file");
 
 	cg_end();
