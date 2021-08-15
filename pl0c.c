@@ -118,6 +118,9 @@ readin(char *file)
 	int fd;
 	struct stat st;
 
+	if (strrchr(file, '.') == NULL)
+		error("file must end in '.pl0'");
+
 	if (!!strcmp(strrchr(file, '.'), ".pl0"))
 		error("file must end in '.pl0'");
 
@@ -556,6 +559,7 @@ again:
 	}
 
 	if (curr->type != TOK_PROCEDURE) {
+		free(curr->name);
 		free(curr);
 		prev->next = NULL;
 		goto again;
