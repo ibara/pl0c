@@ -1,15 +1,22 @@
 {
   Factorial
 }
-var n, f;
+var z, n, f;
 
 begin
-  n := 0;
-  f := 1;
-  while n # 16 do { loop }
+  readInt into z;
+  if z > 0 then
   begin
-    n := n + 1;
-    f := f * n;
-    writeInt f
+    if z < 21 then
+    begin
+      n := 0;
+      f := 1;
+      while n # z do { loop }
+      begin
+        n := n + 1;
+        f := f * n;
+        writeInt f;
+      end;
+    end;
   end;
 end.
