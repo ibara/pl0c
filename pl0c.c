@@ -376,7 +376,7 @@ cg_odd(void)
 }
 
 static void
-cg_prologue(void)
+cg_procedure(void)
 {
 
 	if (proc == 0) {
@@ -823,7 +823,7 @@ block(void)
 
 		expect(TOK_PROCEDURE);
 		if (type == TOK_IDENT) {
-			cg_prologue();
+			cg_procedure();
 			addsymbol(TOK_PROCEDURE);
 		}
 		expect(TOK_SEMICOLON);
@@ -838,7 +838,7 @@ block(void)
 	}
 
 	if (proc == 0)
-		cg_prologue();
+		cg_procedure();
 
 	statement();
 
