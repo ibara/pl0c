@@ -480,24 +480,10 @@ cg_symbol(void)
 }
 
 static void
-cg_var_first(void)
+cg_var(void)
 {
 
-	aout("%s", token);
-}
-
-static void
-cg_var_more(void)
-{
-
-	aout(", %s", token);
-}
-
-static void
-cg_var_start(void)
-{
-
-	aout("long ");
+	aout("long %s;\n", token);
 }
 
 static void
@@ -811,19 +797,17 @@ block(void)
 	}
 
 	if (type == TOK_VAR) {
-		cg_var_start();
 		expect(TOK_VAR);
 		if (type == TOK_IDENT)
-			cg_var_first();
+			cg_var();
 		addsymbol(TOK_VAR);
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
 			if (type == TOK_IDENT)
-				cg_var_more();
+				cg_var();
 			addsymbol(TOK_VAR);
 		}
 		expect(TOK_SEMICOLON);
-		cg_semicolon();
 		cg_crlf();
 	}
 
