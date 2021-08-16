@@ -84,7 +84,7 @@
  *		| "(" expression ")" .
  */
 
-static char *pname, *raw, *token;
+static char *raw, *token;
 static int depth, first, proc, type;
 static size_t line = 1;
 
@@ -384,7 +384,7 @@ cg_prologue(void)
 		aout("main(int argc, char *argv[])\n");
 	} else {
 		aout("void\n");
-		aout("%s(void)\n", pname);
+		aout("%s(void)\n", token);
 	}
 
 	aout("{\n");
@@ -823,19 +823,15 @@ block(void)
 
 		expect(TOK_PROCEDURE);
 		if (type == TOK_IDENT) {
-			if ((pname = strdup(token)) == NULL)
-				error("malloc failed");
+			cg_prologue();
 			addsymbol(TOK_PROCEDURE);
 		}
-		cg_prologue();
 		expect(TOK_SEMICOLON);
 
 		block();
 
 		expect(TOK_SEMICOLON);
 
-		free(pname);
-		pname = NULL;
 		proc = 0;
 
 		destroysymbols();
