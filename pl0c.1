@@ -15,7 +15,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd August 15, 2021
+.Dd August 16, 2021
 .Dt PL0C 1
 .Os
 .Sh NAME
@@ -37,22 +37,22 @@ The PL/0 grammar is as follows:
 .Bd -literal -offset indent
 program		= block "." .
 block		= [ "const" id "=" number { "," id "=" number } ";" ]
-			  [ "var" id { "," id } ";" ]
-			  { "procedure" id ";" block ";" } statement .
-statement		= [ id ":=" expression
-			  | "call" id
-			  | "begin" statement { ";" statement } "end"
-			  | "if" condition "then" statement
-			  | "while" condition "do" statement
-			  | "readInt" [ "into" ] id
-			  | "writeInt" ( id | number ) ] .
-condition		= "odd" expression
-			| expression ( "=" | "#" | "<" | ">" ) expression .
+		  [ "var" id { "," id } ";" ]
+		  { "procedure" id ";" block ";" } statement .
+statement	= [ id ":=" expression
+		  | "call" id
+		  | "begin" statement { ";" statement } "end"
+		  | "if" condition "then" statement
+		  | "while" condition "do" statement
+		  | "readInt" [ "into" ] id
+		  | "writeInt" ( id | number ) ] .
+condition	= "odd" expression
+		| expression ( "=" | "#" | "<" | ">" ) expression .
 expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
-term			= factor { ( "*" | "/" ) factor } .
+term		= factor { ( "*" | "/" ) factor } .
 factor		= id
-			| number
-			| "(" expression ")" .
+		| number
+		| "(" expression ")" .
 .Ed
 .Sh EXIT STATUS
 The
@@ -73,9 +73,11 @@ begin
   end;
 end.
 .Ed
+.Pp
 The output of
 .Nm
 can be piped into a C compiler, like so:
+.Pp
 .Dl pl0c file.pl0 | cc -O -o file -x c -
 .Sh AUTHORS
 .Nm
