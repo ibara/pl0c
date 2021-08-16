@@ -567,8 +567,6 @@ addsymbol(int type)
 	new->next = NULL;
 
 	curr->next = new;
-
-	expect(TOK_IDENT);
 }
 
 static void
@@ -779,6 +777,7 @@ block(void)
 			cg_const();
 			addsymbol(TOK_CONST);
 		}
+		expect(TOK_IDENT);
 		expect(TOK_EQUAL);
 		if (type == TOK_NUMBER) {
 			cg_symbol();
@@ -791,6 +790,7 @@ block(void)
 				cg_const();
 				addsymbol(TOK_CONST);
 			}
+			expect(TOK_IDENT);
 			expect(TOK_EQUAL);
 			if (type == TOK_NUMBER) {
 				cg_symbol();
@@ -807,12 +807,14 @@ block(void)
 			cg_var();
 			addsymbol(TOK_VAR);
 		}
+		expect(TOK_IDENT);
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
 			if (type == TOK_IDENT) {
 				cg_var();
 				addsymbol(TOK_VAR);
 			}
+			expect(TOK_IDENT);
 		}
 		expect(TOK_SEMICOLON);
 		cg_crlf();
@@ -826,6 +828,7 @@ block(void)
 			cg_procedure();
 			addsymbol(TOK_PROCEDURE);
 		}
+		expect(TOK_IDENT);
 		expect(TOK_SEMICOLON);
 
 		block();
