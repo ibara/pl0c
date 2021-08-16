@@ -573,7 +573,8 @@ addsymbol(int type)
 
 	new->depth = depth - 1;
 	new->type = type;
-	new->name = strdup(token);
+	if ((new->name = strdup(token)) == NULL)
+		error("malloc failed");
 	new->next = NULL;
 
 	curr->next = new;
@@ -797,7 +798,6 @@ static void
 block(void)
 {
 	int locals = 0;
-	size_t no = 0;
 
 	if (depth++ > 1)
 		error("nesting depth exceeded");
@@ -849,8 +849,10 @@ block(void)
 		proc = 1;
 
 		expect(TOK_PROCEDURE);
-		if (type == TOK_IDENT)
-			pname = strdup(token);
+		if (type == TOK_IDENT) {
+			if ((pname = strdup(token)) == NULL)
+				error("malloc failed");
+		}
 		addsymbol(TOK_PROCEDURE);
 		cg_prologue();
 		expect(TOK_SEMICOLON);
@@ -900,7 +902,6 @@ parse(void)
 int
 main(int argc, char *argv[])
 {
-	char *startp;
 
 	if (argc != 2) {
 		(void) fputs("usage: pl0c file.pl0\n", stderr);
@@ -908,13 +909,10 @@ main(int argc, char *argv[])
 	}
 
 	readin(argv[1]);
-	startp = raw;
 
 	initsymtab();
 
 	parse();
-
-	free(startp);
 
 	return 0;
 }
