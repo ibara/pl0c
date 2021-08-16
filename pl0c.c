@@ -545,11 +545,15 @@ addsymbol(int type)
 	struct symtab *curr, *new;
 
 	curr = head;
-	while (curr->next != NULL) {
+	while (1) {
 		if (!strcmp(curr->name, token)) {
 			if (curr->depth == (depth - 1))
 				error("duplicate symbol: %s", token);
 		}
+
+		if (curr->next == NULL)
+			break;
+
 		curr = curr->next;
 	}
 
