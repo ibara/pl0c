@@ -27,6 +27,9 @@
 
 #define PL0C_VERSION	"1.1.0"
 
+#define LHS		1
+#define RHS		0
+
 #define TOK_IDENT	'I'
 #define TOK_NUMBER	'N'
 #define TOK_CONST	'C'
@@ -41,6 +44,8 @@
 #define TOK_DO		'D'
 #define TOK_ODD		'O'
 #define TOK_WRITEINT	'w'
+#define TOK_READINT	'R'
+#define TOK_INTO	'n'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -68,6 +73,7 @@
  *		  | "begin" statement { ";" statement } "end"
  *		  | "if" condition "then" statement
  *		  | "while" condition "do" statement
+ *		  | "readInt" [ "into" ] ident
  *		  | "writeInt" ( ident | number ) ] .
  * condition	= "odd" expression
  *		| expression ( "=" | "#" | "<" | ">" ) expression .
@@ -205,6 +211,10 @@ ident(void)
 		return TOK_ODD;
 	else if (!strcmp(token, "writeInt"))
 		return TOK_WRITEINT;
+	else if (!strcmp(token, "readInt"))
+		return TOK_READINT;
+	else if (!strcmp(token, "into"))
+		return TOK_INTO;
 
 	return TOK_IDENT;
 }
@@ -350,7 +360,12 @@ static void
 cg_init(void)
 {
 
-	aout("#include <stdio.h>\n\n");
+	aout("#include <limits.h>\n");
+	aout("#include <stdio.h>\n");
+	aout("#include <stdlib.h>\n");
+	aout("#include <string.h>\n\n");
+	aout("char __stdin[4096];\n");
+	aout("const char *__errstr;\n\n");
 }
 
 static void
@@ -373,6 +388,21 @@ cg_prologue(void)
 	}
 
 	aout("{\n");
+}
+
+static void
+cg_readint(void)
+{
+
+	aout("(void) fgets(__stdin, sizeof(__stdin), stdin);\n");
+	aout("if(__stdin[strlen(__stdin) - 1] == '\\n')");
+	aout("__stdin[strlen(__stdin) - 1] = '\\0';");
+	aout("%s=(long) strtonum(__stdin, LONG_MIN, LONG_MAX, &__errstr);\n",
+	    token);
+	aout("if(__errstr!=NULL){");
+	aout("(void) fprintf(stderr, \"invalid number: \\\"%%s\\\"\", __stdin);");
+	aout("exit(1);");
+	aout("}");
 }
 
 static void
@@ -482,7 +512,7 @@ cg_writeint(void)
  */
 
 static void
-symcheck(void)
+symcheck(int lhs)
 {
 	struct symtab *curr, *ret = NULL;
 
@@ -495,6 +525,11 @@ symcheck(void)
 
 	if (ret == NULL)
 		error("undefined symbol: %s", token);
+
+	if (lhs) {
+		if (ret->type != TOK_VAR)
+			error("only identifiers allowed on left-hand side");
+	}
 }
 
 /*
@@ -605,7 +640,7 @@ factor(void)
 
 	switch (type) {
 	case TOK_IDENT:
-		symcheck();
+		symcheck(RHS);
 		/* Fallthru */
 	case TOK_NUMBER:
 		cg_symbol();
@@ -683,11 +718,10 @@ condition(void)
 static void
 statement(void)
 {
-	struct symtab *left;
 
 	switch (type) {
 	case TOK_IDENT:
-		symcheck();
+		symcheck(LHS);
 		cg_symbol();
 		expect(TOK_IDENT);
 		if (type == TOK_ASSIGN)
@@ -743,6 +777,17 @@ statement(void)
 			expect(TOK_NUMBER);
 		else
 			error("writeInt takes an identifier or a number");
+
+		break;
+	case TOK_READINT:
+		expect(TOK_READINT);
+		if (type == TOK_INTO)
+			expect(TOK_INTO);
+
+		if (type == TOK_IDENT)
+			cg_readint();
+
+		expect(TOK_IDENT);
 	}
 }
 
