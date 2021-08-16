@@ -1,0 +1,6 @@
+{ 0001: Comments }
+{
+  Multi-line comment
+}
+. { Inline comment }
+{ End of program comment }

@@ -1,0 +1,11 @@
+{ 0009: all sections together }
+const one = 1, two = 2;
+var a, b;
+
+procedure empty;
+;
+
+procedure alsoempty;
+;
+
+.

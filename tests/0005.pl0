@@ -1,0 +1,4 @@
+{ 0005: multiple variables }
+var a, b;
+
+.

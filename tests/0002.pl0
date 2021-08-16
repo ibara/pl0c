@@ -1,0 +1,4 @@
+{ 0002: constant section }
+const one = 1;
+
+.
