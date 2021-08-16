@@ -528,7 +528,7 @@ symcheck(int lhs)
 
 	if (lhs) {
 		if (ret->type != TOK_VAR)
-			error("only identifiers allowed on left-hand side");
+			error("must be a variable: %s", token);
 	}
 }
 
@@ -784,8 +784,10 @@ statement(void)
 		if (type == TOK_INTO)
 			expect(TOK_INTO);
 
-		if (type == TOK_IDENT)
+		if (type == TOK_IDENT) {
+			symcheck(LHS);
 			cg_readint();
+		}
 
 		expect(TOK_IDENT);
 	}
