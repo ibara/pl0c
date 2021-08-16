@@ -400,7 +400,7 @@ cg_readint(void)
 	aout("%s=(long) strtonum(__stdin, LONG_MIN, LONG_MAX, &__errstr);\n",
 	    token);
 	aout("if(__errstr!=NULL){");
-	aout("(void) fprintf(stderr, \"invalid number: \\\"%%s\\\"\", __stdin);");
+	aout("(void) fprintf(stderr, \"invalid number: %%s\\n\", __stdin);");
 	aout("exit(1);");
 	aout("}");
 }
@@ -621,12 +621,7 @@ initsymtab(void)
 static void
 checkconst(void)
 {
-	struct symtab *curr;
 	const char *errstr;
-
-	curr = head;
-	while (curr->next != NULL)
-		curr = curr->next;
 
 	(void) strtonum(token, LONG_MIN, LONG_MAX, &errstr);
 	if (errstr != NULL)
@@ -797,7 +792,6 @@ statement(void)
 static void
 block(void)
 {
-	int locals = 0;
 
 	if (depth++ > 1)
 		error("nesting depth exceeded");
