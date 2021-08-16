@@ -34,77 +34,49 @@ and outputs to
 .Ar stdout .
 .Sh GRAMMAR
 The PL/0 grammar is as follows:
-.Pp
+.Bd -literal -offset indent
 program		= block "." .
-.br
 block		= [ "const" id "=" number { "," id "=" number } ";" ]
-.br
 			  [ "var" id { "," id } ";" ]
-.br
 			  { "procedure" id ";" block ";" } statement .
-.br
 statement		= [ id ":=" expression
-.br
 			  | "call" id
-.br
 			  | "begin" statement { ";" statement } "end"
-.br
 			  | "if" condition "then" statement
-.br
 			  | "while" condition "do" statement
-.br
 			  | "readInt" [ "into" ] id
-.br
 			  | "writeInt" ( id | number ) ] .
-.br
 condition		= "odd" expression
-.br
 			| expression ( "=" | "#" | "<" | ">" ) expression .
-.br
 expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
-.br
 term			= factor { ( "*" | "/" ) factor } .
-.br
 factor		= id
-.br
 			| number
-.br
 			| "(" expression ")" .
+.Ed
 .Sh EXIT STATUS
 The
 .Nm
 utility exits 0 on success, and >0 if an error occurs.
 .Sh EXAMPLES
 The following program prints the first 16 factorials:
-.Pp
+.Bd -literal -offset indent
 var n, f;
-.Pp
 begin
-.br
   n := 0;
-.br
   f := 1;
-.br
   while n # 16 do
-.br
   begin
-.br
     n := n + 1;
-.br
     f := f * n;
-.br
     writeInt f
-.br
   end;
-.br
 end.
-.Pp
+.Ed
 The output of
 .Nm
 can be piped into a C compiler, like so:
-.Bl -tag -offset indent -width Ds
-.It pl0c file.pl0 | cc -O -o file -x c -
-.El
+.Dl pl0c file.pl0 | cc -O -o file -x c -
 .Sh AUTHORS
 .Nm
 was written by
