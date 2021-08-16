@@ -27,8 +27,9 @@
 
 #define PL0C_VERSION	"1.1.0"
 
-#define LHS		1
-#define RHS		0
+#define CHECK_LHS	0
+#define CHECK_RHS	1
+#define CHECK_CALL	2
 
 #define TOK_IDENT	'I'
 #define TOK_NUMBER	'N'
@@ -511,7 +512,10 @@ symcheck(int lhs)
 	if (ret == NULL)
 		error("undefined symbol: %s", token);
 
-	if (lhs) {
+	if (lhs == CHECK_CALL) {
+		if (ret->type != TOK_PROCEDURE)
+			error("must be a procedure: %s", token);
+	} else if (lhs == CHECK_LHS) {
 		if (ret->type != TOK_VAR)
 			error("must be a variable: %s", token);
 	}
@@ -611,7 +615,7 @@ factor(void)
 
 	switch (type) {
 	case TOK_IDENT:
-		symcheck(RHS);
+		symcheck(CHECK_RHS);
 		/* Fallthru */
 	case TOK_NUMBER:
 		cg_symbol();
@@ -692,7 +696,7 @@ statement(void)
 
 	switch (type) {
 	case TOK_IDENT:
-		symcheck(LHS);
+		symcheck(CHECK_LHS);
 		cg_symbol();
 		expect(TOK_IDENT);
 		if (type == TOK_ASSIGN)
@@ -702,8 +706,10 @@ statement(void)
 		break;
 	case TOK_CALL:
 		expect(TOK_CALL);
-		if (type == TOK_IDENT)
+		if (type == TOK_IDENT) {
+			symcheck(CHECK_CALL);
 			cg_call();
+		}
 		expect(TOK_IDENT);
 		break;
 	case TOK_BEGIN:
@@ -756,7 +762,7 @@ statement(void)
 			expect(TOK_INTO);
 
 		if (type == TOK_IDENT) {
-			symcheck(LHS);
+			symcheck(CHECK_LHS);
 			cg_readint();
 		}
 
