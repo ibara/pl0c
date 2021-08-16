@@ -771,9 +771,10 @@ block(void)
 
 	if (type == TOK_CONST) {
 		expect(TOK_CONST);
-		if (type == TOK_IDENT)
+		if (type == TOK_IDENT) {
 			cg_const();
-		addsymbol(TOK_CONST);
+			addsymbol(TOK_CONST);
+		}
 		expect(TOK_EQUAL);
 		if (type == TOK_NUMBER) {
 			cg_symbol();
@@ -782,9 +783,10 @@ block(void)
 		expect(TOK_NUMBER);
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
-			if (type == TOK_IDENT)
+			if (type == TOK_IDENT) {
 				cg_const();
-			addsymbol(TOK_CONST);
+				addsymbol(TOK_CONST);
+			}
 			expect(TOK_EQUAL);
 			if (type == TOK_NUMBER) {
 				cg_symbol();
@@ -797,14 +799,16 @@ block(void)
 
 	if (type == TOK_VAR) {
 		expect(TOK_VAR);
-		if (type == TOK_IDENT)
+		if (type == TOK_IDENT) {
 			cg_var();
-		addsymbol(TOK_VAR);
+			addsymbol(TOK_VAR);
+		}
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
-			if (type == TOK_IDENT)
+			if (type == TOK_IDENT) {
 				cg_var();
-			addsymbol(TOK_VAR);
+				addsymbol(TOK_VAR);
+			}
 		}
 		expect(TOK_SEMICOLON);
 		cg_crlf();
@@ -817,8 +821,8 @@ block(void)
 		if (type == TOK_IDENT) {
 			if ((pname = strdup(token)) == NULL)
 				error("malloc failed");
+			addsymbol(TOK_PROCEDURE);
 		}
-		addsymbol(TOK_PROCEDURE);
 		cg_prologue();
 		expect(TOK_SEMICOLON);
 
