@@ -619,18 +619,6 @@ initsymtab(void)
 }
 
 static void
-checkconst(void)
-{
-	const char *errstr;
-
-	(void) strtonum(token, LONG_MIN, LONG_MAX, &errstr);
-	if (errstr != NULL)
-		error("unknown number: %s", token);
-
-	expect(TOK_NUMBER);
-}
-
-static void
 factor(void)
 {
 
@@ -806,7 +794,7 @@ block(void)
 			cg_symbol();
 			cg_semicolon();
 		}
-		checkconst();
+		expect(TOK_NUMBER);
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
 			if (type == TOK_IDENT)
@@ -817,7 +805,7 @@ block(void)
 				cg_symbol();
 				cg_semicolon();
 			}
-			checkconst();
+			expect(TOK_NUMBER);
 		}
 		expect(TOK_SEMICOLON);
 	}
