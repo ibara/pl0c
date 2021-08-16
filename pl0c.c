@@ -419,7 +419,6 @@ cg_symbol(void)
 	switch (type) {
 	case TOK_IDENT:
 	case TOK_NUMBER:
-	case TOK_CONST:
 		aout("%s", token);
 		break;
 	case TOK_BEGIN:
