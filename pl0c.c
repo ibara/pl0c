@@ -328,6 +328,8 @@ static void
 cg_const(void)
 {
 
+	if (proc == 0)
+		aout("static ");
 	aout("const long %s=", token);
 }
 
@@ -352,7 +354,7 @@ cg_epilogue(void)
 	aout(";");
 
 	if (proc == 0)
-		aout("return 0;");
+		aout("\nreturn 0;");
 
 	aout("\n}\n\n");
 }
@@ -365,8 +367,8 @@ cg_init(void)
 	aout("#include <stdio.h>\n");
 	aout("#include <stdlib.h>\n");
 	aout("#include <string.h>\n\n");
-	aout("char __stdin[4096];\n");
-	aout("const char *__errstr;\n\n");
+	aout("static char __stdin[4096];\n");
+	aout("static const char *__errstr;\n\n");
 }
 
 static void
@@ -384,7 +386,7 @@ cg_procedure(void)
 		aout("int\n");
 		aout("main(int argc, char *argv[])\n");
 	} else {
-		aout("void\n");
+		aout("static void\n");
 		aout("%s(void)\n", token);
 	}
 
@@ -483,6 +485,8 @@ static void
 cg_var(void)
 {
 
+	if (proc == 0)
+		aout("static ");
 	aout("long %s;\n", token);
 }
 
