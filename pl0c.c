@@ -498,7 +498,7 @@ cg_writeint(void)
  */
 
 static void
-symcheck(int lhs)
+symcheck(int check)
 {
 	struct symtab *curr, *ret = NULL;
 
@@ -512,12 +512,18 @@ symcheck(int lhs)
 	if (ret == NULL)
 		error("undefined symbol: %s", token);
 
-	if (lhs == CHECK_CALL) {
-		if (ret->type != TOK_PROCEDURE)
-			error("must be a procedure: %s", token);
-	} else if (lhs == CHECK_LHS) {
+	switch (check) {
+	case CHECK_LHS:
 		if (ret->type != TOK_VAR)
 			error("must be a variable: %s", token);
+		break;
+	case CHECK_RHS:
+		if (ret->type == TOK_PROCEDURE)
+			error("must not be a procedure: %s", token);
+		break;
+	case CHECK_CALL:
+		if (ret->type != TOK_PROCEDURE)
+			error("must be a procedure: %s", token);
 	}
 }
 
@@ -745,8 +751,11 @@ statement(void)
 		break;
 	case TOK_WRITEINT:
 		expect(TOK_WRITEINT);
-		if (type == TOK_IDENT || type == TOK_NUMBER)
+		if (type == TOK_IDENT || type == TOK_NUMBER) {
+			if (type == TOK_IDENT)
+				symcheck(CHECK_RHS);
 			cg_writeint();
+		}
 
 		if (type == TOK_IDENT)
 			expect(TOK_IDENT);
