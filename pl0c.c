@@ -86,7 +86,7 @@
  */
 
 static char *raw, *token;
-static int depth, first, proc, type;
+static int depth, proc, type;
 static size_t line = 1;
 
 struct symtab {
