@@ -55,6 +55,8 @@
 #define TOK_HASH	'#'
 #define TOK_LESSTHAN	'<'
 #define TOK_GREATERTHAN	'>'
+#define TOK_LTEQUALS	'{'
+#define TOK_GTEQUALS	'}'
 #define TOK_PLUS	'+'
 #define TOK_MINUS	'-'
 #define TOK_MULTIPLY	'*'
@@ -77,12 +79,13 @@
  *		  | "readInt" [ "into" ] ident
  *		  | "writeInt" ( ident | number ) ] .
  * condition	= "odd" expression
- *		| expression ( "=" | "#" | "<" | ">" ) expression .
+ *		| expression ( comparator ) expression .
  * expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
  * term		= factor { ( "*" | "/" ) factor } .
  * factor	= ident
  *		| number
  *		| "(" expression ")" .
+ * comparator	= "=" | "#" | "<" | ">" | "<=" | ">="
  */
 
 static char *raw, *token;
@@ -280,8 +283,6 @@ again:
 	case ',':
 	case ';':
 	case '#':
-	case '<':
-	case '>':
 	case '+':
 	case '-':
 	case '*':
@@ -289,6 +290,20 @@ again:
 	case '(':
 	case ')':
 		return (*raw);
+	case '<':
+		if (*++raw == '=')
+			return TOK_LTEQUALS;
+
+		--raw;
+
+		return TOK_LESSTHAN;
+	case '>':
+		if (*++raw == '=')
+			return TOK_GTEQUALS;
+
+		--raw;
+
+		return TOK_GREATERTHAN;
 	case ':':
 		if (*++raw != '=')
 			error("unknown token: ':%c'", *raw);
@@ -460,6 +475,12 @@ cg_symbol(void)
 		break;
 	case TOK_GREATERTHAN:
 		aout(">");
+		break;
+	case TOK_LTEQUALS:
+		aout("<=");
+		break;
+	case TOK_GTEQUALS:
+		aout(">=");
 		break;
 	case TOK_PLUS:
 		aout("+");
@@ -689,6 +710,8 @@ condition(void)
 		case TOK_HASH:
 		case TOK_LESSTHAN:
 		case TOK_GREATERTHAN:
+		case TOK_LTEQUALS:
+		case TOK_GTEQUALS:
 			cg_symbol();
 			next();
 			break;

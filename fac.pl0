@@ -7,7 +7,7 @@ begin
   readInt into z;
   if z > 0 then
   begin
-    if z < 21 then
+    if z <= 20 then
     begin
       n := 0;
       f := 1;
