@@ -417,7 +417,7 @@ cg_init(void)
 	aout("#include <stdio.h>\n");
 	aout("#include <stdlib.h>\n");
 	aout("#include <string.h>\n\n");
-	aout("static char __stdin[4096];\n");
+	aout("static char __stdin[24];\n");
 	aout("static const char *__errstr;\n\n");
 }
 
