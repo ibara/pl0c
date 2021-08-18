@@ -46,7 +46,9 @@
 #define TOK_DO		'D'
 #define TOK_ODD		'O'
 #define TOK_WRITEINT	'w'
+#define TOK_WRITECHAR	'H'
 #define TOK_READINT	'R'
+#define TOK_READCHAR	'h'
 #define TOK_INTO	'n'
 #define TOK_SIZE	'S'
 #define TOK_DOT		'.'
@@ -81,7 +83,9 @@
  *		  | "if" condition "then" statement [ "else" statement ]
  *		  | "while" condition "do" statement
  *		  | "readInt" [ "into" ] ident
- *		  | "writeInt" ( ident | number ) ] .
+ *		  | "writeInt" ( ident | number )
+ *		  | "readChar" [ "into" ] ident
+ *		  | "writeChar" ( ident | number) ] .
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
  * expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
@@ -223,8 +227,12 @@ ident(void)
 		return TOK_ODD;
 	else if (!strcmp(token, "writeInt"))
 		return TOK_WRITEINT;
+	else if (!strcmp(token, "writeChar"))
+		return TOK_WRITECHAR;
 	else if (!strcmp(token, "readInt"))
 		return TOK_READINT;
+	else if (!strcmp(token, "readChar"))
+		return TOK_READCHAR;
 	else if (!strcmp(token, "into"))
 		return TOK_INTO;
 	else if (!strcmp(token, "size"))
@@ -436,6 +444,13 @@ cg_procedure(void)
 }
 
 static void
+cg_readchar(void)
+{
+
+	aout("%s=(unsigned char) fgetc(stdin);", token);
+}
+
+static void
 cg_readint(void)
 {
 
@@ -550,10 +565,17 @@ cg_var(void)
 }
 
 static void
+cg_writechar(void)
+{
+
+	aout("(void) fprintf(stdout, \"%%c\", (unsigned char) %s);", token);
+}
+
+static void
 cg_writeint(void)
 {
 
-	aout("(void) fprintf(stdout, \"%%ld\\n\", (long) %s);", token);
+	aout("(void) fprintf(stdout, \"%%ld\", (long) %s);", token);
 }
 
 /*
@@ -856,6 +878,22 @@ statement(void)
 			error("writeInt takes an identifier or a number");
 
 		break;
+	case TOK_WRITECHAR:
+		expect(TOK_WRITECHAR);
+		if (type == TOK_IDENT || type == TOK_NUMBER) {
+			if (type == TOK_IDENT)
+				symcheck(CHECK_RHS);
+			cg_writechar();
+		}
+
+		if (type == TOK_IDENT)
+			expect(TOK_IDENT);
+		else if (type == TOK_NUMBER)
+			expect(TOK_NUMBER);
+		else
+			error("writeChar takes an identifier or a number");
+
+		break;
 	case TOK_READINT:
 		expect(TOK_READINT);
 		if (type == TOK_INTO)
@@ -864,6 +902,19 @@ statement(void)
 		if (type == TOK_IDENT) {
 			symcheck(CHECK_LHS);
 			cg_readint();
+		}
+
+		expect(TOK_IDENT);
+
+		break;
+	case TOK_READCHAR:
+		expect(TOK_READCHAR);
+		if (type == TOK_INTO)
+			expect(TOK_INTO);
+
+		if (type == TOK_IDENT) {
+			symcheck(CHECK_LHS);
+			cg_readchar();
 		}
 
 		expect(TOK_IDENT);
