@@ -41,6 +41,7 @@
 #define TOK_END		'E'
 #define TOK_IF		'i'
 #define TOK_THEN	'T'
+#define TOK_ELSE	'e'
 #define TOK_WHILE	'W'
 #define TOK_DO		'D'
 #define TOK_ODD		'O'
@@ -74,7 +75,7 @@
  * statement	= [ ident ":=" expression
  *		  | "call" ident
  *		  | "begin" statement { ";" statement } "end"
- *		  | "if" condition "then" statement
+ *		  | "if" condition "then" statement [ "else" statement ]
  *		  | "while" condition "do" statement
  *		  | "readInt" [ "into" ] ident
  *		  | "writeInt" ( ident | number ) ] .
@@ -207,6 +208,8 @@ ident(void)
 		return TOK_IF;
 	else if (!strcmp(token, "then"))
 		return TOK_THEN;
+	else if (!strcmp(token, "else"))
+		return TOK_ELSE;
 	else if (!strcmp(token, "while"))
 		return TOK_WHILE;
 	else if (!strcmp(token, "do"))
@@ -343,6 +346,13 @@ cg_call(void)
 }
 
 static void
+cg_closeblock(void)
+{
+
+	aout(";}\n");
+}
+
+static void
 cg_const(void)
 {
 
@@ -452,8 +462,13 @@ cg_symbol(void)
 		aout("if(");
 		break;
 	case TOK_THEN:
+		aout("){");
+		break;
 	case TOK_DO:
 		aout(")");
+		break;
+	case TOK_ELSE:
+		aout(";}else{");
 		break;
 	case TOK_ODD:
 		aout("(");
@@ -769,6 +784,12 @@ statement(void)
 			cg_symbol();
 		expect(TOK_THEN);
 		statement();
+		if (type == TOK_ELSE) {
+			cg_symbol();
+			expect(TOK_ELSE);
+			statement();
+		}
+		cg_closeblock();
 		break;
 	case TOK_WHILE:
 		cg_symbol();
