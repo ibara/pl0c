@@ -1,0 +1,43 @@
+{
+  Fizzbuzz
+}
+
+var x,i,o;
+
+procedure divthree;
+  var div, tmp;
+begin
+  div := i / 3;
+  tmp := div * 3;
+  if i = tmp then
+  begin
+    o := o + 1;
+  end;     
+end;
+
+procedure divfive;
+  var div, tmp;
+begin
+  div := i / 5;
+  tmp := div * 5;
+  if i = tmp then
+  begin
+    o := o + 2;
+  end;
+end;
+
+begin
+  x := 0;
+  while x <> 100 do
+  begin
+    x := x + 1;
+    i := x;
+    o := 0;
+    call divthree;
+    call divfive;
+    if o = 1 then writeInt 300;
+    if o = 2 then writeInt 500;
+    if o = 3 then writeInt 1500;
+    if o = 0 then writeInt x;
+  end;
+end.
