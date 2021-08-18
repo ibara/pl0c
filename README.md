@@ -12,4 +12,5 @@ for the beginner.
 
 TODO
 ----
-* Implement writing characters and strings
+* Implement writing strings
+* Finish arrays
