@@ -85,7 +85,7 @@
  * factor	= ident
  *		| number
  *		| "(" expression ")" .
- * comparator	= "=" | "#" | "<" | ">" | "<=" | ">="
+ * comparator	= "=" | "#" | "<" | ">" | "<=" | ">=" | "<>"
  */
 
 static char *raw, *token;
@@ -293,6 +293,9 @@ again:
 	case '<':
 		if (*++raw == '=')
 			return TOK_LTEQUALS;
+
+		if (*raw == '>')
+			return TOK_HASH;
 
 		--raw;
 
