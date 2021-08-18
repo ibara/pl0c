@@ -816,8 +816,8 @@ block(void)
 	if (type == TOK_CONST) {
 		expect(TOK_CONST);
 		if (type == TOK_IDENT) {
-			cg_const();
 			addsymbol(TOK_CONST);
+			cg_const();
 		}
 		expect(TOK_IDENT);
 		expect(TOK_EQUAL);
@@ -829,8 +829,8 @@ block(void)
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
 			if (type == TOK_IDENT) {
-				cg_const();
 				addsymbol(TOK_CONST);
+				cg_const();
 			}
 			expect(TOK_IDENT);
 			expect(TOK_EQUAL);
@@ -846,15 +846,15 @@ block(void)
 	if (type == TOK_VAR) {
 		expect(TOK_VAR);
 		if (type == TOK_IDENT) {
-			cg_var();
 			addsymbol(TOK_VAR);
+			cg_var();
 		}
 		expect(TOK_IDENT);
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
 			if (type == TOK_IDENT) {
-				cg_var();
 				addsymbol(TOK_VAR);
+				cg_var();
 			}
 			expect(TOK_IDENT);
 		}
@@ -867,8 +867,8 @@ block(void)
 
 		expect(TOK_PROCEDURE);
 		if (type == TOK_IDENT) {
-			cg_procedure();
 			addsymbol(TOK_PROCEDURE);
+			cg_procedure();
 		}
 		expect(TOK_IDENT);
 		expect(TOK_SEMICOLON);
