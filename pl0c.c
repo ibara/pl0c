@@ -650,9 +650,9 @@ initsymtab(void)
 	if ((new = malloc(sizeof(struct symtab))) == NULL)
 		error("malloc failed");
 
-	new->depth = -1;
+	new->depth = 0;
 	new->type = TOK_PROCEDURE;
-	new->name = "@";
+	new->name = "main";
 	new->next = NULL;
 
 	head = new;
