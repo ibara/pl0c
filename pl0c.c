@@ -48,6 +48,7 @@
 #define TOK_WRITEINT	'w'
 #define TOK_READINT	'R'
 #define TOK_INTO	'n'
+#define TOK_SIZE	'S'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -64,13 +65,15 @@
 #define TOK_DIVIDE	'/'
 #define TOK_LPAREN	'('
 #define TOK_RPAREN	')'
+#define TOK_LBRACK	'['
+#define TOK_RBRACK	']'
 
 /*
  * pl0c -- PL/0 compiler.
  *
  * program	= block "." .
  * block	= [ "const" ident "=" number { "," ident "=" number } ";" ]
- *		  [ "var" ident { "," ident } ";" ]
+ *		  [ "var" ident [ array ] { "," ident [ array ] } ";" ]
  *		  { "procedure" ident ";" block ";" } statement .
  * statement	= [ ident ":=" expression
  *		  | "call" ident
@@ -87,6 +90,7 @@
  *		| number
  *		| "(" expression ")" .
  * comparator	= "=" | "#" | "<" | ">" | "<=" | ">=" | "<>"
+ * array	= "size" number
  */
 
 static char *raw, *token;
@@ -96,6 +100,7 @@ static size_t line = 1;
 struct symtab {
 	int depth;
 	int type;
+	long size;
 	char *name;
 	struct symtab *next;
 };
@@ -222,6 +227,8 @@ ident(void)
 		return TOK_READINT;
 	else if (!strcmp(token, "into"))
 		return TOK_INTO;
+	else if (!strcmp(token, "size"))
+		return TOK_SIZE;
 
 	return TOK_IDENT;
 }
@@ -336,6 +343,13 @@ aout(const char *fmt, ...)
 	va_start(ap, fmt);
 	(void) vfprintf(stdout, fmt, ap);
 	va_end(ap);
+}
+
+static void
+cg_array(void)
+{
+
+	aout("[%s]", token);
 }
 
 static void
@@ -517,6 +531,12 @@ cg_symbol(void)
 		break;
 	case TOK_RPAREN:
 		aout(")");
+		break;
+	case TOK_LBRACK:
+		aout("[");
+		break;
+	case TOK_RBRACK:
+		aout("]");
 	}
 }
 
@@ -526,7 +546,7 @@ cg_var(void)
 
 	if (proc == 0)
 		aout("static ");
-	aout("long %s;\n", token);
+	aout("long %s", token);
 }
 
 static void
@@ -615,11 +635,30 @@ addsymbol(int type)
 
 	new->depth = depth - 1;
 	new->type = type;
+	new->size = 0;
 	if ((new->name = strdup(token)) == NULL)
 		error("malloc failed");
 	new->next = NULL;
 
 	curr->next = new;
+}
+
+static void
+arraysize(void)
+{
+	struct symtab *curr;
+	const char *errstr;
+
+	curr = head;
+	while (curr->next != NULL)
+		curr = curr->next;
+
+	if (curr->type != TOK_VAR)
+		error("arrays must be declared with \"var\"");
+
+	curr->size = strtonum(token, 1, LONG_MAX, &errstr);
+	if (errstr != NULL)
+		error("invalid array size");
 }
 
 static void
@@ -652,6 +691,7 @@ initsymtab(void)
 
 	new->depth = 0;
 	new->type = TOK_PROCEDURE;
+	new->size = 0;
 	new->name = "main";
 	new->next = NULL;
 
@@ -874,6 +914,15 @@ block(void)
 			cg_var();
 		}
 		expect(TOK_IDENT);
+		if (type == TOK_SIZE) {
+			expect(TOK_SIZE);
+			if (type == TOK_NUMBER) {
+				arraysize();
+				cg_array();
+				expect(TOK_NUMBER);
+			}
+		}
+		cg_semicolon();
 		while (type == TOK_COMMA) {
 			expect(TOK_COMMA);
 			if (type == TOK_IDENT) {
@@ -881,6 +930,15 @@ block(void)
 				cg_var();
 			}
 			expect(TOK_IDENT);
+			if (type == TOK_SIZE) {
+				expect(TOK_SIZE);
+				if (type == TOK_NUMBER) {
+					arraysize();
+					cg_array();
+					expect(TOK_NUMBER);
+				}
+			}
+			cg_semicolon();
 		}
 		expect(TOK_SEMICOLON);
 		cg_crlf();
