@@ -307,6 +307,8 @@ again:
 	case '/':
 	case '(':
 	case ')':
+	case '[':
+	case ']':
 		return (*raw);
 	case '<':
 		if (*++raw == '=')
@@ -583,6 +585,25 @@ cg_writeint(void)
  */
 
 static void
+arraycheck(void)
+{
+	struct symtab *curr, *ret = NULL;
+
+	curr = head;
+	while (curr != NULL) {
+		if (!strcmp(token, curr->name))
+			ret = curr;
+		curr = curr->next;
+	}
+
+	if (ret == NULL)
+		error("undefined symbol: %s", token);
+
+	if (ret->size == 0)
+		error("symbol %s is not an array", token);
+}
+
+static void
 symcheck(int check)
 {
 	struct symtab *curr, *ret = NULL;
@@ -727,10 +748,21 @@ factor(void)
 	switch (type) {
 	case TOK_IDENT:
 		symcheck(CHECK_RHS);
-		/* Fallthru */
+		cg_symbol();
+		expect(TOK_IDENT);
+		if (type == TOK_LBRACK) {
+			arraycheck();
+			cg_symbol();
+			expect(TOK_LBRACK);
+			expression();
+			if (type == TOK_RBRACK)
+				cg_symbol();
+			expect(TOK_RBRACK);
+		}
+		break;
 	case TOK_NUMBER:
 		cg_symbol();
-		next();
+		expect(TOK_NUMBER);
 		break;
 	case TOK_LPAREN:
 		cg_symbol();
@@ -812,6 +844,15 @@ statement(void)
 		symcheck(CHECK_LHS);
 		cg_symbol();
 		expect(TOK_IDENT);
+		if (type == TOK_LBRACK) {
+			arraycheck();
+			cg_symbol();
+			expect(TOK_LBRACK);
+			expression();
+			if (type == TOK_RBRACK)
+				cg_symbol();
+			expect(TOK_RBRACK);
+		}
 		if (type == TOK_ASSIGN)
 			cg_symbol();
 		expect(TOK_ASSIGN);

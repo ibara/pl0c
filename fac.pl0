@@ -16,6 +16,7 @@ begin
         n := n + 1;
         f := f * n;
         writeInt f;
+        writeChar 10;
       end;
     end;
   end;
