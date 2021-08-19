@@ -51,6 +51,7 @@
 #define TOK_READCHAR	'h'
 #define TOK_INTO	'n'
 #define TOK_SIZE	'S'
+#define TOK_EXIT	'X'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -85,7 +86,8 @@
  *		  | "readInt" [ "into" ] ident
  *		  | "writeInt" ( ident | number )
  *		  | "readChar" [ "into" ] ident
- *		  | "writeChar" ( ident | number) ] .
+ *		  | "writeChar" ( ident | number)
+ *		  | "exit" ( ident | number ) ].
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
  * expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
@@ -237,6 +239,8 @@ ident(void)
 		return TOK_INTO;
 	else if (!strcmp(token, "size"))
 		return TOK_SIZE;
+	else if (!strcmp(token, "exit"))
+		return TOK_EXIT;
 
 	return TOK_IDENT;
 }
@@ -409,6 +413,13 @@ cg_epilogue(void)
 		aout("\nreturn 0;");
 
 	aout("\n}\n\n");
+}
+
+static void
+cg_exit(void)
+{
+
+	aout("exit(%s);\n", token);
 }
 
 static void
@@ -959,6 +970,22 @@ statement(void)
 		}
 
 		expect(TOK_IDENT);
+
+		break;
+	case TOK_EXIT:
+		expect(TOK_EXIT);
+		if (type == TOK_IDENT || type == TOK_NUMBER) {
+			if (type == TOK_IDENT)
+				symcheck(CHECK_RHS);
+			cg_exit();
+		}
+
+		if (type == TOK_IDENT)
+			expect(TOK_IDENT);
+		else if (type == TOK_NUMBER)
+			expect(TOK_NUMBER);
+		else
+			error("exit takes an identifier or a number");
 	}
 }
 
