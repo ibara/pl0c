@@ -537,20 +537,11 @@ cg_symbol(void)
 	case TOK_EQUAL:
 		aout("==");
 		break;
-	case TOK_COMMA:
-		aout(",");
-		break;
 	case TOK_ASSIGN:
 		aout("=");
 		break;
 	case TOK_HASH:
 		aout("!=");
-		break;
-	case TOK_LESSTHAN:
-		aout("<");
-		break;
-	case TOK_GREATERTHAN:
-		aout(">");
 		break;
 	case TOK_LTEQUALS:
 		aout("<=");
@@ -558,38 +549,8 @@ cg_symbol(void)
 	case TOK_GTEQUALS:
 		aout(">=");
 		break;
-	case TOK_PLUS:
-		aout("+");
-		break;
-	case TOK_MINUS:
-		aout("-");
-		break;
-	case TOK_MULTIPLY:
-		aout("*");
-		break;
-	case TOK_DIVIDE:
-		aout("/");
-		break;
-	case TOK_MODULO:
-		aout("%");
-		break;
-	case TOK_AND:
-		aout("&");
-		break;
-	case TOK_OR:
-		aout("|");
-		break;
-	case TOK_LPAREN:
-		aout("(");
-		break;
-	case TOK_RPAREN:
-		aout(")");
-		break;
-	case TOK_LBRACK:
-		aout("[");
-		break;
-	case TOK_RBRACK:
-		aout("]");
+	default:
+		aout("%c", type);
 	}
 }
 
