@@ -84,10 +84,10 @@
  *		  | "if" condition "then" statement [ "else" statement ]
  *		  | "while" condition "do" statement
  *		  | "readInt" [ "into" ] ident
- *		  | "writeInt" ( ident | number )
+ *		  | "writeInt" expression
  *		  | "readChar" [ "into" ] ident
- *		  | "writeChar" ( ident | number)
- *		  | "exit" ( ident | number ) ].
+ *		  | "writeChar" expression
+ *		  | "exit" expression ] .
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
  * expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
@@ -419,7 +419,7 @@ static void
 cg_exit(void)
 {
 
-	aout("exit(%s);\n", token);
+	aout("exit(");
 }
 
 static void
@@ -476,6 +476,13 @@ cg_readint(void)
 	aout("(void) fprintf(stderr, \"invalid number: %%s\\n\", __stdin);");
 	aout("exit(1);");
 	aout("}");
+}
+
+static void
+cg_rparen(void)
+{
+
+	aout(")");
 }
 
 static void
@@ -581,14 +588,14 @@ static void
 cg_writechar(void)
 {
 
-	aout("(void) fprintf(stdout, \"%%c\", (unsigned char) %s);", token);
+	aout("(void) fprintf(stdout, \"%%c\", (unsigned char) (");
 }
 
 static void
 cg_writeint(void)
 {
 
-	aout("(void) fprintf(stdout, \"%%ld\", (long) %s);", token);
+	aout("(void) fprintf(stdout, \"%%ld\", (long) (");
 }
 
 /*
@@ -916,34 +923,20 @@ statement(void)
 		break;
 	case TOK_WRITEINT:
 		expect(TOK_WRITEINT);
-		if (type == TOK_IDENT || type == TOK_NUMBER) {
-			if (type == TOK_IDENT)
-				symcheck(CHECK_RHS);
-			cg_writeint();
-		}
-
-		if (type == TOK_IDENT)
-			expect(TOK_IDENT);
-		else if (type == TOK_NUMBER)
-			expect(TOK_NUMBER);
-		else
-			error("writeInt takes an identifier or a number");
+		cg_writeint();
+		expression();
+		cg_rparen();
+		cg_rparen();
+		cg_semicolon();
 
 		break;
 	case TOK_WRITECHAR:
 		expect(TOK_WRITECHAR);
-		if (type == TOK_IDENT || type == TOK_NUMBER) {
-			if (type == TOK_IDENT)
-				symcheck(CHECK_RHS);
-			cg_writechar();
-		}
-
-		if (type == TOK_IDENT)
-			expect(TOK_IDENT);
-		else if (type == TOK_NUMBER)
-			expect(TOK_NUMBER);
-		else
-			error("writeChar takes an identifier or a number");
+		cg_writechar();
+		expression();
+		cg_rparen();
+		cg_rparen();
+		cg_semicolon();
 
 		break;
 	case TOK_READINT:
@@ -974,18 +967,10 @@ statement(void)
 		break;
 	case TOK_EXIT:
 		expect(TOK_EXIT);
-		if (type == TOK_IDENT || type == TOK_NUMBER) {
-			if (type == TOK_IDENT)
-				symcheck(CHECK_RHS);
-			cg_exit();
-		}
-
-		if (type == TOK_IDENT)
-			expect(TOK_IDENT);
-		else if (type == TOK_NUMBER)
-			expect(TOK_NUMBER);
-		else
-			error("exit takes an identifier or a number");
+		cg_exit();
+		expression();
+		cg_rparen();
+		cg_semicolon();
 	}
 }
 
