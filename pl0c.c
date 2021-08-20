@@ -84,8 +84,8 @@
  *		  | "if" condition "then" statement [ "else" statement ]
  *		  | "while" condition "do" statement
  *		  | "readInt" [ "into" ] ident
- *		  | "writeInt" expression
  *		  | "readChar" [ "into" ] ident
+ *		  | "writeInt" expression
  *		  | "writeChar" expression
  *		  | "exit" expression ] .
  * condition	= "odd" expression
@@ -95,8 +95,8 @@
  * factor	= ident
  *		| number
  *		| "(" expression ")" .
- * comparator	= "=" | "#" | "<" | ">" | "<=" | ">=" | "<>"
- * array	= "size" number
+ * comparator	= "=" | "#" | "<" | ">" | "<=" | ">=" | "<>" .
+ * array	= "size" number .
  */
 
 static char *raw, *token;

@@ -15,7 +15,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd August 16, 2021
+.Dd August 20, 2021
 .Dt PL0C 1
 .Os
 .Sh NAME
@@ -37,7 +37,7 @@ The PL/0 grammar is as follows:
 .Bd -literal -offset indent
 program		= block "." .
 block		= [ "const" id "=" number { "," id "=" number } ";" ]
-		  [ "var" id { "," id } ";" ]
+		  [ "var" id [ array ] { "," id  [ array ] } ";" ]
 		  { "procedure" id ";" block ";" } statement .
 statement	= [ id ":=" expression
 		  | "call" id
@@ -45,14 +45,19 @@ statement	= [ id ":=" expression
 		  | "if" condition "then" statement
 		  | "while" condition "do" statement
 		  | "readInt" [ "into" ] id
-		  | "writeInt" ( id | number ) ] .
+		  | "readChar" [ "into" ] id
+		  | "writeInt" expression
+		  | "writeChar" expression
+		  | "exit" expression ] .
 condition	= "odd" expression
-		| expression ( "=" | "#" | "<" | ">" ) expression .
+		| expression ( comparator ) expression .
 expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
 term		= factor { ( "*" | "/" ) factor } .
 factor		= id
 		| number
 		| "(" expression ")" .
+comparator	= "=" | "#" | "<" | ">" | "<=" | ">=" | "<>" .
+array		= "size" number .
 .Ed
 .Sh EXIT STATUS
 The
@@ -69,7 +74,8 @@ begin
   begin
     n := n + 1;
     f := f * n;
-    writeInt f
+    writeInt f;
+    writeChar 10
   end;
 end.
 .Ed
