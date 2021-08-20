@@ -1,0 +1,105 @@
+{ read and write an integer }
+
+const E_OK = 0, E_INVALID = 1, E_OVERFLOW = 2;
+
+var integer, err, a;
+
+procedure read_integer;
+  var c, n, running, sign, i;
+begin
+  err := E_OK;
+  running := 1;
+  n := 0;
+  sign := 1;
+  i := 0;
+  while running = 1 do
+  begin
+    readChar into c;
+    { if ( i = 0 and ( c = 43 or c = 45 ) }
+    if (i + (c - 43) * (c - 45)) = 0 then
+    begin
+      if c = 43 then sign := 1
+      else if c = 45 then sign := -1;
+      readChar into c;
+    end;
+    { if ( c = -1 or c = 10 ) }
+    if ((c + 1) * (c - 10)) = 0 then
+    begin
+      running := 0;
+      integer := n * sign;
+      if i = 0 then err := E_INVALID
+      else if i > 19 then
+        if n < 0 then
+          err := E_OVERFLOW;
+    end
+    { if ( c < 48 or c > 57 ) }
+    else if ((c - 48) * (57 - c)) < 0 then
+    begin
+      err := E_INVALID;
+      running := 0;
+    end
+    else begin
+      c := c - 48;
+      n := n * 10;
+      n := n + c;
+      i := i + 1;
+    end;
+  end;
+end;
+
+procedure write_integer;
+  var n, m, d, c;
+begin
+  n := integer;
+  d := 1;
+  if n < 0 then n := -n;
+  while n > 0 do
+  begin
+    n := n / 10;
+    d := d * 10;
+  end;
+  n := integer;
+  if n = 0 then writeChar 48;
+  if n < 0 then begin writeChar 45; n := -n end;
+  while d >= 10 do
+  begin
+    d := d / 10;
+    m := n / d;
+    n := n - m * d;
+    c := m + 48;
+    writeChar c
+  end;
+end;
+
+begin
+  call read_integer;
+  a := 96;
+  if err = E_INVALID then
+  begin
+    writeChar (a + 9);  { i }
+    writeChar (a + 14); { n }
+    writeChar (a + 22); { v }
+    writeChar (a + 1);  { a }
+    writeChar (a + 12); { l }
+    writeChar (a + 9);  { i }
+    writeChar (a + 4);  { d }
+    writeChar 10;
+    exit 1;
+  end
+  else if err = E_OVERFLOW then
+  begin
+    writeChar (a + 15); { o }
+    writeChar (a + 22); { v }
+    writeChar (a + 5);  { e }
+    writeChar (a + 18); { r }
+    writeChar (a + 6);  { f }
+    writeChar (a + 12); { l }
+    writeChar (a + 15); { o }
+    writeChar (a + 23); { w }
+    writeChar 10;
+    exit 1;
+  end
+  else
+    call write_integer;
+  writeChar 10;
+end.
