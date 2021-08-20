@@ -13,4 +13,3 @@ for the beginner.
 TODO
 ----
 * Implement writing strings
-* Finish arrays
