@@ -54,6 +54,7 @@
 #define TOK_EXIT	'X'
 #define TOK_AND		'&'
 #define TOK_OR		'|'
+#define TOK_NOT		'~'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -93,7 +94,7 @@
  *		  | "exit" expression ] .
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
- * expression	= [ "+" | "-" ] term { ( "+" | "-" | "or" ) term } .
+ * expression	= [ "+" | "-" | "not" ] term { ( "+" | "-" | "or" ) term } .
  * term		= factor { ( "*" | "/" | "mod" | "and" ) factor } .
  * factor	= ident
  *		| number
@@ -248,6 +249,8 @@ ident(void)
 		return TOK_AND;
 	else if (!strcmp(token, "or"))
 		return TOK_OR;
+	else if (!strcmp(token, "not"))
+		return TOK_NOT;
 	else if (!strcmp(token, "mod"))
 		return TOK_MODULO;
 
@@ -789,15 +792,14 @@ static void
 expression(void)
 {
 
-	if (type == TOK_PLUS || type == TOK_MINUS) {
+	if (type == TOK_PLUS || type == TOK_MINUS || type == TOK_NOT) {
 		cg_symbol();
 		next();
 	}
 
 	term();
 
-	while (type == TOK_PLUS || type == TOK_MINUS ||
-	    type == TOK_OR) {
+	while (type == TOK_PLUS || type == TOK_MINUS || type == TOK_OR) {
 		cg_symbol();
 		next();
 		term();

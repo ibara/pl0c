@@ -34,7 +34,7 @@ and outputs to
 .Ar stdout .
 .Sh GRAMMAR
 The PL/0 grammar is as follows:
-.Bd -literal -offset indent
+.Bd -literal
 program		= block "." .
 block		= [ "const" id "=" number { "," id "=" number } ";" ]
 		  [ "var" id [ array ] { "," id  [ array ] } ";" ]
@@ -51,7 +51,7 @@ statement	= [ id ":=" expression
 		  | "exit" expression ] .
 condition	= "odd" expression
 		| expression ( comparator ) expression .
-expression	= [ "+" | "-" ] term { ( "+" | "-" | "or" ) term } .
+expression	= [ "+" | "-" | "not" ] term { ( "+" | "-" | "or" ) term } .
 term		= factor { ( "*" | "/" | "mod" | "and" ) factor } .
 factor		= id
 		| number
