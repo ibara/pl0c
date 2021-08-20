@@ -51,8 +51,8 @@ statement	= [ id ":=" expression
 		  | "exit" expression ] .
 condition	= "odd" expression
 		| expression ( comparator ) expression .
-expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
-term		= factor { ( "*" | "/" ) factor } .
+expression	= [ "+" | "-" ] term { ( "+" | "-" | "or" ) term } .
+term		= factor { ( "*" | "/" | "mod" | "and" ) factor } .
 factor		= id
 		| number
 		| "(" expression ")" .

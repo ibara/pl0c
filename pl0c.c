@@ -52,6 +52,8 @@
 #define TOK_INTO	'n'
 #define TOK_SIZE	'S'
 #define TOK_EXIT	'X'
+#define TOK_AND		'&'
+#define TOK_OR		'|'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -66,6 +68,7 @@
 #define TOK_MINUS	'-'
 #define TOK_MULTIPLY	'*'
 #define TOK_DIVIDE	'/'
+#define TOK_MODULO	'%'
 #define TOK_LPAREN	'('
 #define TOK_RPAREN	')'
 #define TOK_LBRACK	'['
@@ -90,8 +93,8 @@
  *		  | "exit" expression ] .
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
- * expression	= [ "+" | "-" ] term { ( "+" | "-" ) term } .
- * term		= factor { ( "*" | "/" ) factor } .
+ * expression	= [ "+" | "-" ] term { ( "+" | "-" | "or" ) term } .
+ * term		= factor { ( "*" | "/" | "mod" | "and" ) factor } .
  * factor	= ident
  *		| number
  *		| "(" expression ")" .
@@ -241,6 +244,12 @@ ident(void)
 		return TOK_SIZE;
 	else if (!strcmp(token, "exit"))
 		return TOK_EXIT;
+	else if (!strcmp(token, "and"))
+		return TOK_AND;
+	else if (!strcmp(token, "or"))
+		return TOK_OR;
+	else if (!strcmp(token, "mod"))
+		return TOK_MODULO;
 
 	return TOK_IDENT;
 }
@@ -561,6 +570,15 @@ cg_symbol(void)
 	case TOK_DIVIDE:
 		aout("/");
 		break;
+	case TOK_MODULO:
+		aout("%");
+		break;
+	case TOK_AND:
+		aout("&");
+		break;
+	case TOK_OR:
+		aout("|");
+		break;
 	case TOK_LPAREN:
 		aout("(");
 		break;
@@ -798,7 +816,8 @@ term(void)
 
 	factor();
 
-	while (type == TOK_MULTIPLY || type == TOK_DIVIDE) {
+	while (type == TOK_MULTIPLY || type == TOK_DIVIDE ||
+	    type == TOK_MODULO || type == TOK_AND) {
 		cg_symbol();
 		next();
 		factor();
@@ -816,7 +835,8 @@ expression(void)
 
 	term();
 
-	while (type == TOK_PLUS || type == TOK_MINUS) {
+	while (type == TOK_PLUS || type == TOK_MINUS ||
+	    type == TOK_OR) {
 		cg_symbol();
 		next();
 		term();
