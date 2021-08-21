@@ -47,10 +47,11 @@
 #define TOK_ODD		'O'
 #define TOK_WRITEINT	'w'
 #define TOK_WRITECHAR	'H'
+#define TOK_WRITESTR	'S'
 #define TOK_READINT	'R'
 #define TOK_READCHAR	'h'
 #define TOK_INTO	'n'
-#define TOK_SIZE	'S'
+#define TOK_SIZE	's'
 #define TOK_EXIT	'X'
 #define TOK_AND		'&'
 #define TOK_OR		'|'
@@ -74,6 +75,7 @@
 #define TOK_RPAREN	')'
 #define TOK_LBRACK	'['
 #define TOK_RBRACK	']'
+#define TOK_STRING	'"'
 
 /*
  * pl0c -- PL/0 compiler.
@@ -91,6 +93,7 @@
  *		  | "readChar" [ "into" ] ident
  *		  | "writeInt" expression
  *		  | "writeChar" expression
+		  | "writeStr" ( ident | string )
  *		  | "exit" expression ] .
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
@@ -235,6 +238,8 @@ ident(void)
 		return TOK_WRITEINT;
 	else if (!strcmp(token, "writeChar"))
 		return TOK_WRITECHAR;
+	else if (!strcmp(token, "writeStr"))
+		return TOK_WRITESTR;
 	else if (!strcmp(token, "readInt"))
 		return TOK_READINT;
 	else if (!strcmp(token, "readChar"))
@@ -444,6 +449,7 @@ cg_init(void)
 	aout("#include <string.h>\n\n");
 	aout("static char __stdin[24];\n");
 	aout("static const char *__errstr;\n\n");
+	aout("long __writestridx;\n\n");
 }
 
 static void
@@ -578,6 +584,35 @@ cg_writeint(void)
 {
 
 	aout("(void) fprintf(stdout, \"%%ld\", (long) (");
+}
+
+static void
+cg_writestr(void)
+{
+	struct symtab *curr, *ret;
+
+	if (type == TOK_IDENT) {
+		curr = head;
+		while (curr != NULL) {
+			if (!strcmp(curr->name, token))
+				ret = curr;
+			curr = curr->next;
+		}
+
+		if (ret == NULL)
+			error("undefined symbol: %s", token);
+
+		if (ret->size == 0)
+			error("writeStr requires an array");
+
+		aout("__writestridx = 0;\n");
+		aout("while(%s[__writestridx]!='\\0'&&__writestridx<%ld)\n",
+		    token, ret->size);
+		aout("(void)fputc((unsigned char)%s[__writestridx++],stdout);\n",
+		    token);
+	} else {
+		aout("(void)fprintf(stdout, \"%s\");\n", token);
+	}
 }
 
 /*
@@ -920,6 +955,22 @@ statement(void)
 		cg_rparen();
 		cg_rparen();
 		cg_semicolon();
+
+		break;
+	case TOK_WRITESTR:
+		expect(TOK_WRITESTR);
+		if (type == TOK_IDENT || type == TOK_STRING) {
+			if (type == TOK_IDENT)
+				symcheck(CHECK_LHS);
+			cg_writestr();
+
+			if (type == TOK_IDENT)
+				expect(TOK_IDENT);
+			else
+				expect(TOK_STRING);
+		} else {
+			error("writeStr takes an array or a string");
+		}
 
 		break;
 	case TOK_READINT:
