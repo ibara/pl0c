@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define PL0C_VERSION	"1.1.0"
+#define PL0C_VERSION	"1.2.0"
 
 #define CHECK_LHS	0
 #define CHECK_RHS	1
@@ -93,7 +93,7 @@
  *		  | "readChar" [ "into" ] ident
  *		  | "writeInt" expression
  *		  | "writeChar" expression
-		  | "writeStr" ( ident | string )
+ *		  | "writeStr" ( ident | string )
  *		  | "exit" expression ] .
  * condition	= "odd" expression
  *		| expression ( comparator ) expression .
@@ -297,6 +297,61 @@ number(void)
 }
 
 static int
+string(void)
+{
+	char *p;
+	size_t i, len;
+
+	p = ++raw;
+
+restart:
+	while (*raw != '\'') {
+		if (*raw == '\n' || *raw == '\0')
+			error("unterminated string");
+		++raw;
+	}
+	if (*++raw == '\'') {
+		++raw;
+		goto restart;
+	}
+
+	--raw;
+
+	len = raw - p;
+
+	if (len < 1)
+		error("impossible string");
+
+	free(token);
+
+	if ((token = malloc(len + 3)) == NULL)
+		error("malloc failed");
+
+	token[0] = '"';
+	for (i = 1; i <= len; i++) {
+		if (*p == '\'') {
+			token[i++] = '\\';
+			++p;
+		}
+		token[i] = *p++;
+	}
+	token[i++] = '"';
+	token[i] = '\0';
+
+	if (len == 1 || (len == 2 && token[1] == '\\')) {
+		token[0] = '\'';
+		if (len == 1)
+			token[2] = '\'';
+		else
+			token[3] = '\'';
+
+		return TOK_NUMBER;
+	}
+
+	return TOK_STRING;
+}
+
+static int
 lex(void)
 {
 
@@ -353,6 +408,8 @@ again:
 			error("unknown token: ':%c'", *raw);
 
 		return TOK_ASSIGN;
+	case '\'':
+		return string();
 	case '\0':
 		return 0;
 	default:
@@ -611,7 +668,7 @@ cg_writestr(void)
 		aout("(void)fputc((unsigned char)%s[__writestridx++],stdout);\n",
 		    token);
 	} else {
-		aout("(void)fprintf(stdout, \"%s\");\n", token);
+		aout("(void)fprintf(stdout, %s);\n", token);
 	}
 }
 
