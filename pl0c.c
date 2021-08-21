@@ -300,7 +300,7 @@ static int
 string(void)
 {
 	char *p;
-	size_t i, len;
+	size_t i, len, mod = 0;
 
 	p = ++raw;
 
@@ -308,7 +308,8 @@ restart:
 	while (*raw != '\'') {
 		if (*raw == '\n' || *raw == '\0')
 			error("unterminated string");
-		++raw;
+		if (*raw++ == '"')
+			++mod;
 	}
 	if (*++raw == '\'') {
 		++raw;
@@ -317,7 +318,7 @@ restart:
 
 	--raw;
 
-	len = raw - p;
+	len = raw - p + mod;
 
 	if (len < 1)
 		error("impossible string");
@@ -332,6 +333,8 @@ restart:
 		if (*p == '\'') {
 			token[i++] = '\\';
 			++p;
+		} else if (*p == '"') {
+			token[i++] = '\\';
 		}
 		token[i] = *p++;
 	}
@@ -506,7 +509,7 @@ cg_init(void)
 	aout("#include <string.h>\n\n");
 	aout("static char __stdin[24];\n");
 	aout("static const char *__errstr;\n\n");
-	aout("long __writestridx;\n\n");
+	aout("static long __writestridx;\n\n");
 }
 
 static void
