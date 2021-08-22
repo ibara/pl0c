@@ -24,10 +24,13 @@ stage3: stage2
 	./${STAGE2} < pl0c.pl0 | ${CC} ${CFLAGS} -o ${PROG} -x c -
 
 final: stage3
-	/usr/bin/cmp -s ${STAGE2} ${PROG}
+	cmp -s ${STAGE2} ${PROG}
 
 nobootstrap:
 	${PROG} < pl0c.pl0 | ${CC} ${CFLAGS} -o ${PROG} -x c -
+
+genbootstrap:
+	${PROG} < pl0c.pl0 | clang-format > pl0c.c
 
 install:
 	install -d ${PREFIX}/bin
