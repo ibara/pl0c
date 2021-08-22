@@ -5,7 +5,7 @@ echo ========================
 
 for i in *.pl0 ; do
   /usr/bin/printf "%.4s... " $i
-  ../pl0c $i > /dev/null 2>&1
+  ../pl0c < $i > /dev/null 2>&1
   if [ $? -eq 0 ] ; then
     echo ok
   else
