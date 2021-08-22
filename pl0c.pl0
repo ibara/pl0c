@@ -1529,7 +1529,160 @@ begin
 end;
 
 procedure symcheck;
+  var i, n, p, save;
 begin
+  i := 0;
+  save := 0;
+
+  while i < symtabcnt do
+  begin
+    call clrstr;
+    n := 0;
+    p := 35 * i;
+    while n < 32 do
+    begin
+      str[n] := symtab[p];
+      p := p + 1;
+      n := n + 1
+    end;
+    call cmpstr;
+    if ret = 0 then
+      save := 35 * i;
+    i := i + 1
+  end;
+
+  if save = 0 then
+  begin
+    errstr[0] := 'u';
+    errstr[1] := 'n';
+    errstr[2] := 'd';
+    errstr[3] := 'e';
+    errstr[4] := 'f';
+    errstr[5] := 'i';
+    errstr[6] := 'n';
+    errstr[7] := 'e';
+    errstr[8] := 'd';
+    errstr[9] := ' ';
+    errstr[10] := 's';
+    errstr[11] := 'y';
+    errstr[12] := 'm';
+    errstr[13] := 'b';
+    errstr[14] := 'o';
+    errstr[15] := 'l';
+    call error
+  end;
+
+  if symtype = CHECK_LHS then
+  begin
+    if symtab[save + 32] # TOK_VAR then
+    begin
+      errstr[0] := 'm';
+      errstr[1] := 'u';
+      errstr[2] := 's';
+      errstr[3] := 't';
+      errstr[4] := ' ';
+      errstr[5] := 'b';
+      errstr[6] := 'e';
+      errstr[7] := ' ';
+      errstr[8] := 'a';
+      errstr[9] := ' ';
+      errstr[10] := 'v';
+      errstr[11] := 'a';
+      errstr[12] := 'r';
+      errstr[13] := 'i';
+      errstr[14] := 'a';
+      errstr[15] := 'b';
+      errstr[16] := 'l';
+      errstr[17] := 'e';
+      call error
+    end;
+  end
+  else if symtype = CHECK_RHS then
+  begin
+    if symtab[save + 32] = TOK_PROCEDURE then
+    begin
+      errstr[0] := 'm';
+      errstr[1] := 'u';
+      errstr[2] := 's';
+      errstr[3] := 't';
+      errstr[4] := ' ';
+      errstr[5] := 'n';
+      errstr[6] := 'o';
+      errstr[7] := 't';
+      errstr[8] := ' ';
+      errstr[9] := 'b';
+      errstr[10] := 'e';
+      errstr[11] := ' ';
+      errstr[12] := 'a';
+      errstr[13] := ' ';
+      errstr[14] := 'p';
+      errstr[15] := 'r';
+      errstr[16] := 'o';
+      errstr[17] := 'c';
+      errstr[18] := 'e';
+      errstr[19] := 'd';
+      errstr[20] := 'u';
+      errstr[21] := 'r';
+      errstr[22] := 'e';
+      call error
+    end
+    else if symtab[save + 32] = TOK_FORWARD then
+    begin
+      errstr[0] := 'm';
+      errstr[1] := 'u';
+      errstr[2] := 's';
+      errstr[3] := 't';
+      errstr[4] := ' ';
+      errstr[5] := 'n';
+      errstr[6] := 'o';
+      errstr[7] := 't';
+      errstr[8] := ' ';
+      errstr[9] := 'b';
+      errstr[10] := 'e';
+      errstr[11] := ' ';
+      errstr[12] := 'a';
+      errstr[13] := ' ';
+      errstr[14] := 'p';
+      errstr[15] := 'r';
+      errstr[16] := 'o';
+      errstr[17] := 'c';
+      errstr[18] := 'e';
+      errstr[19] := 'd';
+      errstr[20] := 'u';
+      errstr[21] := 'r';
+      errstr[22] := 'e';
+      call error
+    end;
+  end
+  else if symtype = CHECK_CALL then
+  begin
+    if symtab[save + 32] # TOK_PROCEDURE then
+    begin
+      if symtab[save + 32] # TOK_FORWARD then
+      begin
+        errstr[0] := 'm';
+        errstr[1] := 'u';
+        errstr[2] := 's';
+        errstr[3] := 't';
+        errstr[4] := ' ';
+        errstr[5] := 'b';
+        errstr[6] := 'e';
+        errstr[7] := ' ';
+        errstr[8] := 'a';
+        errstr[9] := ' ';
+        errstr[10] := 'p';
+        errstr[11] := 'r';
+        errstr[12] := 'o';
+        errstr[13] := 'c';
+        errstr[14] := 'e';
+        errstr[15] := 'd';
+        errstr[16] := 'u';
+        errstr[17] := 'r';
+        errstr[18] := 'e';
+        call error
+      end;
+    end;
+  end;
 end;
 
 procedure destroysymbols;
