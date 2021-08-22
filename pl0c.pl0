@@ -1327,7 +1327,33 @@ begin
   symtab[i] := depth - 1;
   i := i + 1;
   symtab[i] := 0;
-  symtabcnt := symtabcnt + 1
+  symtabcnt := symtabcnt + 1;
+  if symtabcnt = 29961 then
+  begin
+    errstr[0] := 's';
+    errstr[1] := 'y';
+    errstr[2] := 'm';
+    errstr[3] := 'b';
+    errstr[4] := 'o';
+    errstr[5] := 'l';
+    errstr[6] := ' ';
+    errstr[7] := 't';
+    errstr[8] := 'a';
+    errstr[9] := 'b';
+    errstr[10] := 'l';
+    errstr[11] := 'e';
+    errstr[12] := ' ';
+    errstr[13] := 'e';
+    errstr[14] := 'x';
+    errstr[15] := 'h';
+    errstr[16] := 'a';
+    errstr[17] := 'u';
+    errstr[18] := 's';
+    errstr[19] := 't';
+    errstr[20] := 'e';
+    errstr[21] := 'd';
+    call error
+  end;
 end;
 
 procedure arraycheck;
@@ -1431,7 +1457,21 @@ begin
 end;
 
 procedure destroysymbols;
+  var i, n;
 begin
+  i := 35 * (symtabcnt - 1);
+  while symtab[i + 32] # TOK_PROCEDURE do
+  begin
+    n := 0;
+    while n < 35 do
+    begin
+      symtab[i] := '\0';
+      i := i + 1;
+      n := n + 1
+    end;
+    symtabcnt := symtabcnt - 1;
+    i := 35 * (symtabcnt - 1)
+  end;
 end;
 
 procedure factor;
