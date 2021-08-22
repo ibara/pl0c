@@ -56,6 +56,7 @@
 #define TOK_AND		'&'
 #define TOK_OR		'|'
 #define TOK_NOT		'~'
+#define TOK_FORWARD	'F'
 #define TOK_DOT		'.'
 #define TOK_EQUAL	'='
 #define TOK_COMMA	','
@@ -83,6 +84,7 @@
  * program	= block "." .
  * block	= [ "const" ident "=" number { "," ident "=" number } ";" ]
  *		  [ "var" ident [ array ] { "," ident [ array ] } ";" ]
+		  { "forward" ident ";" }
  *		  { "procedure" ident ";" block ";" } statement .
  * statement	= [ ident ":=" expression
  *		  | "call" ident
@@ -258,6 +260,8 @@ ident(void)
 		return TOK_NOT;
 	else if (!strcmp(token, "mod"))
 		return TOK_MODULO;
+	else if (!strcmp(token, "forward"))
+		return TOK_FORWARD;
 
 	return TOK_IDENT;
 }
@@ -501,6 +505,13 @@ cg_exit(void)
 }
 
 static void
+cg_forward(void)
+{
+
+	aout("static void %s(void);", token);
+}
+
+static void
 cg_init(void)
 {
 
@@ -720,11 +731,11 @@ symcheck(int check)
 			error("must be a variable: %s", token);
 		break;
 	case CHECK_RHS:
-		if (ret->type == TOK_PROCEDURE)
+		if (ret->type == TOK_PROCEDURE || ret->type == TOK_FORWARD)
 			error("must not be a procedure: %s", token);
 		break;
 	case CHECK_CALL:
-		if (ret->type != TOK_PROCEDURE)
+		if (ret->type != TOK_PROCEDURE && ret->type != TOK_FORWARD)
 			error("must be a procedure: %s", token);
 	}
 }
@@ -759,8 +770,14 @@ addsymbol(int type)
 	curr = head;
 	while (1) {
 		if (!strcmp(curr->name, token)) {
-			if (curr->depth == (depth - 1))
-				error("duplicate symbol: %s", token);
+			if (curr->depth == (depth - 1)) {
+				if (curr->type == TOK_FORWARD &&
+				    type == TOK_PROCEDURE) {
+					/* Don't error out!  */
+				} else {
+					error("duplicate symbol: %s", token);
+				}
+			}
 		}
 
 		if (curr->next == NULL)
@@ -1141,6 +1158,16 @@ block(void)
 		}
 		expect(TOK_SEMICOLON);
 		cg_crlf();
+	}
+
+	while (type == TOK_FORWARD) {
+		expect(TOK_FORWARD);
+		if (type == TOK_IDENT) {
+			addsymbol(TOK_FORWARD);
+			cg_forward();
+		}
+		expect(TOK_IDENT);
+		expect(TOK_SEMICOLON);
 	}
 
 	while (type == TOK_PROCEDURE) {
