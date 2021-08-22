@@ -1,0 +1,141 @@
+{
+  Copyright (c) 2021 Brian Callahan <bcallah@openbsd.org>
+
+  Permission to use, copy, modify, and distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+}
+
+{
+  pl0c -- PL/0 compiler written in PL/0.
+}
+
+const
+  CHECK_LHS	= 0,
+  CHECK_RHS	= 1,
+  CHECK_CALL	= 2,
+
+  TOK_IDENT	= 'I',
+  TOK_NUMBER	= 'N',
+  TOK_CONST	= 'C',
+  TOK_VAR	= 'V',
+  TOK_PROCEDURE	= 'P',
+  TOK_CALL	= 'c',
+  TOK_BEGIN	= 'B',
+  TOK_END	= 'E',
+  TOK_IF	= 'i',
+  TOK_THEN	= 'T',
+  TOK_ELSE	= 'e',
+  TOK_WHILE	= 'W',
+  TOK_DO	= 'D',
+  TOK_ODD	= 'O',
+  TOK_WRITEINT	= 'w',
+  TOK_WRITECHAR	= 'H',
+  TOK_WRITESTR	= 'S',
+  TOK_READINT	= 'R',
+  TOK_READCHAR	= 'h',
+  TOK_INTO	= 'n',
+  TOK_SIZE	= 's',
+  TOK_EXIT	= 'X',
+  TOK_AND	= '&',
+  TOK_OR	= '|',
+  TOK_NOT	= '~',
+  TOK_DOT	= '.',
+  TOK_EQUAL	= '=',
+  TOK_COMMA	= ',',
+  TOK_SEMICOLON	= ';',
+  TOK_ASSIGN	= ':',
+  TOK_HASH	= '#',
+  TOK_LTHAN	= '<',
+  TOK_GTHAN	= '>',
+  TOK_LTHANE	= '{',
+  TOK_GTHANE	= '}',
+  TOK_PLUS	= '+',
+  TOK_MINUS	= '-',
+  TOK_MULTIPLY	= '*',
+  TOK_DIVIDE	= '/',
+  TOK_MODULO	= '%',
+  TOK_LPAREN	= '(',
+  TOK_RPAREN	= ')',
+  TOK_LBRACK	= '[',
+  TOK_RBRACK	= ']',
+  TOK_STRING	= '"'
+;
+
+var
+  raw size 1048576, { 8 MB, can hold files up to 1 MB in size }
+  symtab size 1048576, { 8 MB, can hold up to 30840 symbols }
+  errstr size 32, { error string }
+  token size 32, { 31 characters + '\0' }
+  str size 32, { For cmpstr }
+  symtabcnt, { To keep track of number of symtab entries }
+  ret, { Return code for procedures that need one }
+  line { line number }
+;
+
+{ Misc. functions }
+
+procedure error;
+begin
+  writeStr 'pl0c: error: ';
+  writeInt line;
+  writeStr ': ';
+  writeStr errstr;
+  writeChar '\n';
+  exit 1
+end;
+
+procedure readin;
+  var ch, i;
+begin
+  i := 0;
+  readChar into ch;
+  while ch # -1 do
+  begin
+    raw[i] := ch;
+    i := i + 1;
+    if i = 1048577 then { File too big! }
+    begin
+      errstr[0] := 'f';
+      errstr[1] := 'i';
+      errstr[2] := 'l';
+      errstr[3] := 'e';
+      errstr[4] := ' ';
+      errstr[5] := 't';
+      errstr[6] := 'o';
+      errstr[7] := 'o';
+      errstr[8] := ' ';
+      errstr[9] := 'b';
+      errstr[10] := 'i';
+      errstr[11] := 'g';
+      call error;
+    end;
+    readChar into ch;
+  end;
+end;
+
+{ Lexer }
+
+{ Code generator }
+
+{ Parser }
+
+procedure parse;
+begin
+  writeStr raw
+end;
+
+{ Main }
+
+begin
+  call readin;
+  call parse
+end.
