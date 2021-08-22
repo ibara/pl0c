@@ -35,7 +35,7 @@ genbootstrap:
 install:
 	install -d ${PREFIX}/bin
 	install -d ${MANDIR}/man1
-	install -c -m 755 ${PROG} ${PREFIX}/bin
+	install -c -s -m 755 ${PROG} ${PREFIX}/bin
 	install -c -m 444 ${PROG}.1 ${MANDIR}/man1
 
 test:
