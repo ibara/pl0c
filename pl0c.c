@@ -538,7 +538,7 @@ static void
 cg_readchar(void)
 {
 
-	aout("%s=(unsigned char) fgetc(stdin);", token);
+	aout("%s=(int) fgetc(stdin);", token);
 }
 
 static void
