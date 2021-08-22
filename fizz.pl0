@@ -10,9 +10,7 @@ begin
   div := i / 3;
   tmp := div * 3;
   if i = tmp then
-  begin
     o := o + 1;
-  end;     
 end;
 
 procedure divfive;
@@ -21,15 +19,7 @@ begin
   div := i / 5;
   tmp := div * 5;
   if i = tmp then
-  begin
     o := o + 2;
-  end;
-end;
-
-procedure write;
-begin
-  writeInt o;
-  writeChar 10
 end;
 
 begin
@@ -42,12 +32,12 @@ begin
     call divthree;
     call divfive;
     if o = 1 then
-      writeStr 'Fizz'; 
-    if o = 2 then
-      writeStr 'Buzz';
-    if o = 3 then
-      writeStr 'FizzBuzz';
-    if o = 0 then
+      writeStr 'Fizz'
+    else if o = 2 then
+      writeStr 'Buzz'
+    else if o = 3 then
+      writeStr 'FizzBuzz'
+    else if o = 0 then
       writeInt x;
     writeChar '\n';
   end;
