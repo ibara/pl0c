@@ -98,6 +98,8 @@ begin
   writeInt line;
   writeStr ': ';
   writeStr errstr;
+  writeStr ': ';
+  writeStr token;
   writeChar '\n';
   exit 1
 end;
@@ -1034,9 +1036,279 @@ end;
 
 { Code generator }
 
+procedure cg_array;
+begin
+  writeChar '[';
+  writeStr token;
+  writeChar ']'
+end;
+
+procedure cg_call;
+begin
+  writeStr token;
+  writeStr '();\n'
+end;
+
+procedure cg_closeblock;
+begin
+  writeStr ';}\n'
+end;
+
+procedure cg_const;
+begin
+  if proc = 0 then
+    writeStr 'static ';
+
+  writeStr 'const long ';
+  writeStr token;
+  writeChar '='
+end;
+
+procedure cg_crlf;
+begin
+  writeChar '\n'
+end;
+
 procedure cg_end;
 begin
   writeStr '/* PL/0 compiler 1.0.0 */\n'
+end;
+
+procedure cg_epilogue;
+begin
+  writeChar ';';
+
+  if proc = 0 then
+    writeStr '\nreturn 0;';
+
+  writeStr '\n}\n\n'
+end;
+
+procedure cg_exit;
+begin
+  writeStr 'exit('
+end;
+
+procedure cg_forward;
+begin
+  writeStr 'static void ';
+  writeStr token;
+  writeStr '(void);\n'
+end;
+
+procedure cg_init;
+begin
+  writeStr '#include <limits.h>\n';
+  writeStr '#include <stdio.h>\n';
+  writeStr '#include <stdlib.h>\n';
+  writeStr '#include <string.h>\n\n';
+  writeStr 'static char __stdin[24];\n';
+  writeStr 'static const char *__errstr;\n\n';
+  writeStr 'static long __writestridx;\n\n'
+end;
+
+procedure cg_odd;
+begin
+  writeStr ')&1'
+end;
+
+procedure cg_procedure;
+begin
+  if proc = 0 then
+  begin
+    writeStr 'int\n';
+    writeStr 'main(int argc, char *argv[])\n'
+  end
+  else
+  begin
+    writeStr 'static void\n';
+    writeStr token;
+    writeStr '(void)\n'
+  end;
+
+  writeStr '{\n'
+end;
+
+procedure cg_readchar;
+begin
+  writeStr token;
+  writeStr '=(int) fgetc(stdin);'
+end;
+
+procedure cg_readint;
+begin
+  writeStr '(void) fgets(__stdin, sizeof(__stdin), stdin);\n';
+  writeStr 'if(__stdin[strlen(__stdin) - 1] == ''\\n'')';
+  writeStr '__stdin[strlen(__stdin) - 1] = ''\\0'';';
+  writeStr token;
+  writeStr '=(long) strtonum(__stdin, LONG_MIN, LONG_MAX, &__errstr);\n';
+  writeStr 'if(__errstr!=NULL){';
+  writeStr '(void) fprintf(stderr, ';
+  writeChar '"';
+  writeStr 'invalid number: %%s';
+  writeChar '"';
+  writeStr ', __stdin);\n';
+  writeStr 'exit(1);';
+  writeChar '}'
+end;
+
+procedure cg_rparen;
+begin
+  writeChar ')'
+end;
+
+procedure cg_semicolon;
+begin
+  writeStr ';\n'
+end;
+
+procedure cg_symbol;
+begin
+  if type = TOK_IDENT then
+    writeStr token
+  else if type = TOK_NUMBER then
+    writeStr token
+  else if type = TOK_BEGIN then
+    writeStr '{\n'
+  else if type = TOK_END then
+    writeStr ';\n}\n'
+  else if type = TOK_IF then
+    writeStr 'if('
+  else if type = TOK_THEN then
+    writeStr '){'
+  else if type = TOK_DO then
+    writeChar ')'
+  else if type = TOK_ELSE then
+    writeStr ';}else{'
+  else if type = TOK_ODD then
+    writeChar '('
+  else if type = TOK_WHILE then
+    writeStr 'while('
+  else if type = TOK_EQUAL then
+    writeStr '=='
+  else if type = TOK_ASSIGN then
+    writeChar '='
+  else if type = TOK_HASH then
+    writeStr '!='
+  else if type = TOK_LTHANE then
+    writeStr '<='
+  else if type = TOK_GTHANE then
+    writeStr '>='
+  else
+    writeChar type;
+end;
+
+procedure cg_var;
+begin
+  if proc = 0 then
+    writeStr 'static ';
+
+  writeStr 'long ';
+  writeStr token
+end;
+
+procedure cg_writechar;
+begin
+  writeStr '(void) fprintf(stdout, ';
+  writeChar '"';
+  writeStr '%%c';
+  writeChar '"';
+  writeStr ', (unsigned char) ('
+end;
+
+procedure cg_writeint;
+begin
+  writeStr '(void) fprintf(stdout, ';
+  writeChar '"';
+  writeStr '%%ld';
+  writeChar '"';
+  writeStr ', (long) ('
+end;
+
+procedure cg_writestr;
+  var i, n, p, save;
+begin
+  i := 0;
+  save := 0;
+
+  if type = TOK_IDENT then
+  begin
+    while i < symtabcnt do
+    begin
+      call clrstr;
+      n := 0;
+      p := 35 * i;
+      while n < 32 do
+      begin
+        str[n] := symtab[p];
+        p := p + 1;
+        n := n + 1
+      end;
+      call cmpstr;
+      if ret = 0 then
+        save := 35 * i;
+      i := i + 1
+    end;
+
+    if save = 0 then
+    begin
+      errstr[0] := 'u';
+      errstr[1] := 'n';
+      errstr[2] := 'd';
+      errstr[3] := 'e';
+      errstr[4] := 'f';
+      errstr[5] := 'i';
+      errstr[6] := 'n';
+      errstr[7] := 'e';
+      errstr[8] := 'd';
+      errstr[9] := ' ';
+      errstr[10] := 's';
+      errstr[11] := 'y';
+      errstr[12] := 'm';
+      errstr[13] := 'b';
+      errstr[14] := 'o';
+      errstr[15] := 'l';
+      call error
+    end;
+
+    if symtab[save + 34] = 0 then
+    begin
+      errstr[0] := 'w';
+      errstr[1] := 'r';
+      errstr[2] := 'i';
+      errstr[3] := 't';
+      errstr[4] := 'e';
+      errstr[5] := 'S';
+      errstr[6] := 't';
+      errstr[7] := 'r';
+      errstr[8] := ' ';
+      errstr[9] := 'r';
+      errstr[10] := 'e';
+      errstr[11] := 'q';
+      errstr[12] := 'u';
+      errstr[13] := 'i';
+      errstr[14] := 'r';
+      errstr[15] := 'e';
+      errstr[16] := 's';
+      errstr[17] := ' ';
+      errstr[18] := 'a';
+      errstr[19] := 'n';
+      errstr[20] := ' ';
+      errstr[21] := 'a';
+      errstr[22] := 'r';
+        errstr[23] := 'r';
+      errstr[24] := 'a';
+      errstr[25] := 'y';
+      call error
+    end;
+  end
+  else
+  begin
+    writeStr '(void)fprintf(stdout, ';
+    writeStr token;
+    writeStr ');\n'
+  end;
+
 end;
 
 { Parser }
@@ -1709,34 +1981,34 @@ begin
   begin
     symtype := CHECK_RHS;
     call symcheck;
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_ident;
     if type = TOK_LBRACK then
     begin
       call arraycheck;
-      { call cg_symbol; }
+      call cg_symbol;
       call lbrack;
       call expression;
       if type = TOK_RBRACK then
       begin
-        { call cg_symbol; }
+        call cg_symbol;
       end;
       call rbrack;
     end;
   end
   else if type = TOK_NUMBER then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_number
   end
   else if type = TOK_LPAREN then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call lparen;
     call expression;
     if type = TOK_RPAREN then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
     end;
     call rparen;
   end;
@@ -1756,28 +2028,28 @@ begin
     if type = TOK_MULTIPLY then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call factor;
     end
     else if type = TOK_DIVIDE then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call factor;
     end
     else if type = TOK_MODULO then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call factor;
     end
     else if type = TOK_AND then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call factor;
     end;
@@ -1791,12 +2063,12 @@ begin
 
   if type = TOK_PLUS then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call next
   end
   else if type = TOK_MINUS then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call next
   end;
 
@@ -1809,21 +2081,21 @@ begin
     if type = TOK_PLUS then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call term;
     end
     else if type = TOK_MINUS then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call term;
     end
     else if type = TOK_OR then
     begin
       loop := 1;
-      { call cg_symbol; }
+      call cg_symbol;
       call next;
       call term;
     end;
@@ -1834,10 +2106,10 @@ procedure condition;
 begin
   if type = TOK_ODD then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_odd;
     call expression;
-    { call cg_odd }
+    call cg_odd
   end
   else
   begin
@@ -1845,32 +2117,32 @@ begin
 
     if type = TOK_EQUAL then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call next
     end
     else if type = TOK_HASH then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call next
     end
     else if type = TOK_LTHAN then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call next
     end
     else if type = TOK_GTHAN then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call next
     end
     else if type = TOK_LTHANE then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call next
     end
     else if type = TOK_GTHANE then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call next
     end
     else
@@ -1907,23 +2179,23 @@ begin
   begin
     symtype := CHECK_LHS;
     call symcheck;
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_ident;
     if type = TOK_LBRACK then
     begin
       call arraycheck;
-      { call cg_symbol; }
+      call cg_symbol;
       call lbrack;
       call expression;
       if type = TOK_RBRACK then
       begin
-        { call cg_symbol; }
+        call cg_symbol;
       end;
       call rbrack;
     end;
     if type = TOK_ASSIGN then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
     end;
     call assign;
     call expression;
@@ -1935,54 +2207,54 @@ begin
     begin
       symtype := TOK_CALL;
       call symcheck;
-      { call cg_call }
+      call cg_call
     end;
     call expect_ident;
   end
   else if type = TOK_BEGIN then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_begin;
     call statement;
     while type = TOK_SEMICOLON do
     begin
-      { call cg_semicolon; }
+      call cg_semicolon;
       call semicolon;
       call statement
     end;
     if type = TOK_END then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
     end;
     call expect_end;
   end
   else if type = TOK_IF then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_if;
     call condition;
     if type = TOK_THEN then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
     end;
     call expect_then;
     call statement;
     if type = TOK_ELSE then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
       call expect_else;
       call statement
     end;
-    { call cg_closeblock }
+    call cg_closeblock
   end
   else if type = TOK_WHILE then
   begin
-    { call cg_symbol; }
+    call cg_symbol;
     call expect_while;
     call condition;
     if type = TOK_DO then
     begin
-      { call cg_symbol; }
+      call cg_symbol;
     end;
     call expect_do;
     call statement;
@@ -1990,20 +2262,20 @@ begin
   else if type = TOK_WRITEINT then
   begin
     call expect_writeint;
-    { call cg_writeint; }
+    call cg_writeint;
     call expression;
-    { call cg_rparen; }
-    { call cg_rparen; }
-    { call cg_semicolon; }
+    call cg_rparen;
+    call cg_rparen;
+    call cg_semicolon;
   end
   else if type = TOK_WRITECHAR then
   begin
     call expect_writechar;
-    { call cg_writecharl }
+    call cg_writechar;
     call expression;
-    { call cg_rparen; }
-    { call cg_rparen; }
-    { call cg_semicolon; }
+    call cg_rparen;
+    call cg_rparen;
+    call cg_semicolon;
   end
   else if type = TOK_WRITESTR then
   begin
@@ -2012,12 +2284,12 @@ begin
     begin
       symtype := CHECK_LHS;
       call symcheck;
-      { call cg_writestr; }
+      call cg_writestr;
       call expect_ident
     end
     else if type = TOK_STRING then
     begin
-      { call cg_writestr; }
+      call cg_writestr;
       call expect_string
     end
     else
@@ -2069,7 +2341,7 @@ begin
     begin
       symtype := CHECK_LHS;
       call symcheck;
-      { call cg_readint }
+      call cg_readint
     end;
     call expect_ident;
   end
@@ -2082,17 +2354,17 @@ begin
     begin
       symtype := CHECK_LHS;
       call symcheck;
-      { call cg_readchar }
+      call cg_readchar
     end;
     call expect_ident;
   end
   else if type = TOK_EXIT then
   begin
     call expect_exit;
-    { call cg_exit; }
+    call cg_exit;
     call expression;
-    { call cg_rparen; }
-    { call cg_semicolon }
+    call cg_rparen;
+    call cg_semicolon
   end;
 end;
 
@@ -2134,14 +2406,14 @@ begin
     begin
       symtype := TOK_CONST;
       call addsymbol;
-      { call cg_const }
+      call cg_const
     end;
     call expect_ident;
     call equal;
     if type = TOK_NUMBER then
     begin
-      { call cg_symbol; }
-      { call cg_semicolon }
+      call cg_symbol;
+      call cg_semicolon
     end;
     call expect_number;
     while type = TOK_COMMA do
@@ -2151,14 +2423,14 @@ begin
       begin
         symtype := TOK_CONST;
         call addsymbol;
-        { call cg_const }
+        call cg_const
       end;
       call expect_ident;
       call equal;
       if type = TOK_NUMBER then
       begin
-        { call cg_symbol; }
-        { call cg_semicolon }
+        call cg_symbol;
+        call cg_semicolon
       end;
       call expect_number;
     end;
@@ -2172,7 +2444,7 @@ begin
     begin
       symtype := TOK_VAR;
       call addsymbol;
-      { cg_var }
+      call cg_var
     end;
     call expect_ident;
     if type = TOK_SIZE then
@@ -2181,11 +2453,11 @@ begin
       if type = TOK_NUMBER then
       begin
         call arraysize;
-        { call cg_array; }
+        call cg_array;
       end;
       call expect_number;
     end;
-    { call cg_semicolon; }
+    call cg_semicolon;
     while type = TOK_COMMA do
     begin
       call comma;
@@ -2193,7 +2465,7 @@ begin
       begin
         symtype := TOK_VAR;
         call addsymbol;
-        { call cg_var }
+        call cg_var
       end;
       call expect_ident;
       if type = TOK_SIZE then
@@ -2202,14 +2474,14 @@ begin
         if type = TOK_NUMBER then
         begin
           call arraysize;
-          { call cg_array; }
+          call cg_array;
           call expect_number
         end;
       end;
-      { call cg_semicolon }
+      call cg_semicolon
     end;
     call semicolon;
-    { call cg_crlf }
+    call cg_crlf
   end;
 
   while type = TOK_FORWARD do
@@ -2219,7 +2491,7 @@ begin
     begin
       symtype := TOK_FORWARD;
       call addsymbol;
-      { call cg_forward }
+      call cg_forward
     end;
     call expect_ident;
     call semicolon;
@@ -2234,7 +2506,7 @@ begin
     begin
       symtype := TOK_PROCEDURE;
       call addsymbol;
-      { call cg_procedure }
+      call cg_procedure
     end;
     call expect_ident;
     call semicolon;
@@ -2250,12 +2522,12 @@ begin
 
   if proc = 0 then
   begin
-    { cg_procedure; }
+    call cg_procedure;
   end;
 
   call statement;
 
-  { call cg_epilogue; }
+  call cg_epilogue;
 
   depth := depth - 1;
 
@@ -2291,42 +2563,44 @@ begin
   end;
 end;
 
-procedure dumpsymtab;
-  var i, n, p;
-begin
-  i := 0;
-
-  while i < symtabcnt do
+{
+  procedure dumpsymtab;
+    var i, n, p;
   begin
-    n := i * 35;
-    p := 0;
-    while symtab[n] # '\0' do
+    i := 0;
+
+    while i < symtabcnt do
     begin
-      writeChar symtab[n];
+      n := i * 35;
+        p := 0;
+      while symtab[n] # '\0' do
+      begin
+        writeChar symtab[n];
+        n := n + 1;
+        p := p + 1
+      end;
+      while p < 32 do
+      begin
+        p := p + 1;
+        n := n + 1
+      end;
+      writeChar ' ';
+      writeInt symtab[n];
       n := n + 1;
-      p := p + 1
+      writeChar '|';
+      writeInt symtab[n];
+      n := n + 1;
+      writeChar '|';
+      writeInt symtab[n];
+      writeChar '\n';
+      i := i + 1
     end;
-    while p < 32 do
-    begin
-      p := p + 1;
-      n := n + 1
-    end;
-    writeChar ' ';
-    writeInt symtab[n];
-    n := n + 1;
-    writeChar '|';
-    writeInt symtab[n];
-    n := n + 1;
-    writeChar '|';
-    writeInt symtab[n];
-    writeChar '\n';
-    i := i + 1
   end;
-end;
+}
 
 procedure parse;
 begin
-  { call cg_init; }
+  call cg_init;
 
   call next;
   call block;
@@ -2365,8 +2639,6 @@ begin
   end;
 
   call cg_end;
-
-  call dumpsymtab
 end;
 
 { Main }
