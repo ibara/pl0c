@@ -25,3 +25,12 @@ Version
 The current version is `1.0.0`.
 
 You can find a source tarball in the Releases tab.
+
+Issues and Pull Requests
+------------------------
+Issues and Pull Requests are accepted at any time.
+
+If your Pull Request changes the compiler in any way, I ask
+that you remember to update the bootstrap compiler using
+`make genbootstrap` and including the updated bootstrap
+compiler as part of the Pull Request.
