@@ -30,6 +30,9 @@ stage4: stage3
 final: stage4
 	/usr/bin/cmp -s ${STAGE3} ${PROG}
 
+nobootstrap:
+	${PROG} < pl0c.pl0 | ${CC} ${CFLAGS} -o ${PROG} -x c -
+
 install:
 	install -d ${PREFIX}/bin
 	install -d ${MANDIR}/man1
