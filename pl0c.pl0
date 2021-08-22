@@ -72,7 +72,7 @@ const
 ;
 
 var
-  raw size 1048576, { 8 MB, can hole up to 1 MB source code files }
+  raw size 1048576, { 8 MB, can hold up to 1 MB source code files }
   loc, { Where we are in the input code }
   symtab size 1048576, { 8 MB, can hold up to 29960 symbols }
   symtype, { For addsymbol }
