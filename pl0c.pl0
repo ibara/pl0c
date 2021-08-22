@@ -1104,7 +1104,14 @@ begin
   writeStr '#include <string.h>\n\n';
   writeStr 'static char __stdin[24];\n';
   writeStr 'static const char *__errstr;\n\n';
-  writeStr 'static long __writestridx;\n\n'
+  writeStr 'static long __writestridx;\n\n';
+  writeStr '#ifndef HAVE_STRTONUM\n';
+  writeStr '#include ';
+  writeChar '"';
+  writeStr 'strtonum.c';
+  writeChar '"';
+  writeChar '\n';
+  writeStr '#endif\n\n'
 end;
 
 procedure cg_odd;

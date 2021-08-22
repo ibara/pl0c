@@ -25,6 +25,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifndef HAVE_STRTONUM
+#include "strtonum.c"
+#endif
+
 #define PL0C_VERSION	"1.2.0"
 
 #define CHECK_LHS	0

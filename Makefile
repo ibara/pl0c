@@ -3,8 +3,11 @@
 CC =		cc
 CFLAGS =	-g -O2 -DHAVE_STRTONUM
 
+PREFIX =	/usr/local
+MANDIR =	/usr/local/man
+
 PROG =	pl0c
-OBJS =	pl0c.o strtonum.o
+OBJS =	pl0c.o
 
 BOOTSTRAP =	bootstrap
 STAGE2 =	stage2
@@ -26,6 +29,12 @@ stage4: stage3
 
 final: stage4
 	/usr/bin/cmp -s ${STAGE3} ${PROG}
+
+install:
+	install -d ${PREFIX}/bin
+	install -d ${MANDIR}/man1
+	install -c -m 755 ${PROG} ${PREFIX}/bin
+	install -c -m 444 ${PROG}.1 ${MANDIR}/man1
 
 test:
 	cd tests && ./test.sh

@@ -15,7 +15,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd August 20, 2021
+.Dd August 22, 2021
 .Dt PL0C 1
 .Os
 .Sh NAME
@@ -23,13 +23,12 @@
 .Nd PL/0 compiler
 .Sh SYNOPSIS
 .Nm
-.Ar file.pl0
 .Sh DESCRIPTION
 .Nm
-is a utility that compiles PL/0 code to equivalent C code.
+is a PL/0 compiler.
 .Nm
 reads input from
-.Ar file.pl0
+.Ar stdin
 and outputs to
 .Ar stdout .
 .Sh GRAMMAR
@@ -38,6 +37,7 @@ The PL/0 grammar is as follows:
 program		= block "." .
 block		= [ "const" id "=" number { "," id "=" number } ";" ]
 		  [ "var" id [ array ] { "," id  [ array ] } ";" ]
+		  { "forward" id ";" }
 		  { "procedure" id ";" block ";" } statement .
 statement	= [ id ":=" expression
 		  | "call" id
@@ -48,6 +48,7 @@ statement	= [ id ":=" expression
 		  | "readChar" [ "into" ] id
 		  | "writeInt" expression
 		  | "writeChar" expression
+		  | "writeStr" ( id | string )
 		  | "exit" expression ] .
 condition	= "odd" expression
 		| expression ( comparator ) expression .
@@ -82,9 +83,9 @@ end.
 .Pp
 The output of
 .Nm
-can be piped into a C compiler, like so:
+can be piped into a C compiler to produce an executable, like so:
 .Pp
-.Dl pl0c file.pl0 | cc -O -o file -x c -
+.Dl pl0c < file.pl0 | cc -O -o file -x c -
 .Sh AUTHORS
 .Nm
 was written by

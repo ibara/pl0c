@@ -9,3 +9,13 @@ It was written to be the subject of a series of
 [blog posts](https://briancallahan.net/blog/20210814.html)
 on writing a compiler from a hands-on practical perspective
 for the beginner.
+
+Building
+--------
+Just run `make`. Then (optionally) `make install`.
+
+If you are on a platform that does not include
+[`strtonum(3)`](https://man.openbsd.org/strtonum.3)
+in its libc, remove `-DHAVE_STRTONUM` from `CFLAGS`.
+In this case, you'll have to put `strtonum.c` in the
+same directory as `pl0c`. This will be improved.
