@@ -1,10 +1,10 @@
 # pl0c Makefile
 
-CC =		cc
-CFLAGS =	-g -O2 -DHAVE_STRTONUM
+CC ?=		cc
+CFLAGS ?=	-g -O2 -DHAVE_STRTONUM
 
-PREFIX =	/usr/local
-MANDIR =	/usr/local/man
+PREFIX ?=	/usr/local
+MANDIR ?=	/usr/local/man
 
 PROG =	pl0c
 OBJS =	pl0c.o
