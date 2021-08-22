@@ -72,10 +72,12 @@ const
 
 var
   raw size 1048576, { 8 MB, can hold files up to 1 MB in size }
+  loc, { Where we are in the input code }
   symtab size 1048576, { 8 MB, can hold up to 30840 symbols }
   errstr size 32, { error string }
-  token size 32, { 31 characters + '\0' }
-  str size 32, { For cmpstr }
+  token size 256, { 255 characters + '\0' }
+  type, { token type }
+  str size 256, { For cmpstr }
   symtabcnt, { To keep track of number of symtab entries }
   ret, { Return code for procedures that need one }
   line { line number }
@@ -91,6 +93,33 @@ begin
   writeStr errstr;
   writeChar '\n';
   exit 1
+end;
+
+procedure cmpstr;
+  var i;
+begin
+  i := 0;
+  ret := 0;
+
+  while i < 256 do
+  begin
+    if token[i] # str[i] then
+      ret := 1;
+
+    i := i + 1
+  end;
+end;
+
+procedure clrstr;
+  var i;
+begin
+  i := 0;
+
+  while i < 256 do
+  begin
+    str[i] := '\0';
+    i := i + 1
+  end;
 end;
 
 procedure readin;
@@ -120,22 +149,884 @@ begin
     end;
     readChar into ch;
   end;
+  loc := 0 { Put the location pointer at the beginning }
 end;
 
 { Lexer }
+
+procedure comment;
+begin
+  while raw[loc] # '}' do
+  begin
+    if raw[loc] = '\0' then
+    begin
+      errstr[0] := 'u';
+      errstr[1] := 'n';
+      errstr[2] := 't';
+      errstr[3] := 'e';
+      errstr[4] := 'r';
+      errstr[5] := 'm';
+      errstr[6] := 'i';
+      errstr[7] := 'n';
+      errstr[8] := 'a';
+      errstr[9] := 't';
+      errstr[10] := 'e';
+      errstr[11] := 'd';
+      errstr[12] := ' ';
+      errstr[13] := 'c';
+      errstr[14] := 'o';
+      errstr[15] := 'm';
+      errstr[16] := 'm';
+      errstr[17] := 'e';
+      errstr[18] := 'n';
+      errstr[19] := 't';
+      call error
+    end
+    else if raw[loc] = '\n' then
+      line := line + 1;
+
+    loc := loc + 1
+  end;
+end;
+
+procedure ident;
+  var i, loop;
+begin
+  i := 0;
+  loop := 1;
+
+  while loop # 0 do
+  begin
+    loop := 0;
+
+    if raw[loc] >= 'A' then
+    begin
+      if raw[loc] <= 'Z' then
+      begin
+        loop := 1;
+        token[i] := raw[loc];
+        i := i + 1;
+        if i = 256 then
+        begin
+          errstr[0] := 't';
+          errstr[1] := 'o';
+          errstr[2] := 'k';
+          errstr[3] := 'e';
+          errstr[4] := 'n';
+          errstr[5] := ' ';
+          errstr[6] := 't';
+          errstr[7] := 'o';
+          errstr[8] := 'o';
+          errstr[9] := ' ';
+          errstr[10] := 'l';
+          errstr[11] := 'o';
+          errstr[12] := 'n';
+          errstr[13] := 'g';
+          call error
+        end;
+      end;
+    end;
+
+    if loop = 0 then
+    begin
+      if raw[loc] >= 'a' then
+      begin
+        if raw[loc] <= 'z' then
+        begin
+          loop := 1;
+          token[i] := raw[loc];
+          i := i + 1;
+          if i = 256 then
+          begin
+            errstr[0] := 't';
+            errstr[1] := 'o';
+            errstr[2] := 'k';
+            errstr[3] := 'e';
+            errstr[4] := 'n';
+            errstr[5] := ' ';
+            errstr[6] := 't';
+            errstr[7] := 'o';
+            errstr[8] := 'o';
+            errstr[9] := ' ';
+            errstr[10] := 'l';
+            errstr[11] := 'o';
+            errstr[12] := 'n';
+            errstr[13] := 'g';
+            call error
+          end;
+        end;
+      end;
+    end;
+
+    if loop = 0 then
+    begin
+      if raw[loc] >= '0' then
+      begin
+        if raw[loc] <= '9' then
+        begin
+          loop := 1;
+          token[i] := raw[loc];
+          i := i + 1;
+          if i = 256 then
+          begin
+            errstr[0] := 't';
+            errstr[1] := 'o';
+            errstr[2] := 'k';
+            errstr[3] := 'e';
+            errstr[4] := 'n';
+            errstr[5] := ' ';
+            errstr[6] := 't';
+            errstr[7] := 'o';
+            errstr[8] := 'o';
+            errstr[9] := ' ';
+            errstr[10] := 'l';
+            errstr[11] := 'o';
+            errstr[12] := 'n';
+            errstr[13] := 'g';
+            call error
+          end;
+        end;
+      end;
+    end;
+
+    if loop = 0 then
+    begin
+      if raw[loc] = '_' then
+      begin
+        loop := 1;
+        token[i] := raw[loc];
+        i := i + 1;
+        if i = 256 then
+        begin
+          errstr[0] := 't';
+          errstr[1] := 'o';
+          errstr[2] := 'k';
+          errstr[3] := 'e';
+          errstr[4] := 'n';
+          errstr[5] := ' ';
+          errstr[6] := 't';
+          errstr[7] := 'o';
+          errstr[8] := 'o';
+          errstr[9] := ' ';
+          errstr[10] := 'l';
+          errstr[11] := 'o';
+          errstr[12] := 'n';
+          errstr[13] := 'g';
+          call error
+        end;
+      end;
+    end;
+
+    if loop # 0 then
+      loc := loc + 1;
+  end;
+
+  loc := loc - 1;
+
+  call clrstr;
+  str[0] := 'c';
+  str[1] := 'o';
+  str[2] := 'n';
+  str[3] := 's';
+  str[4] := 't';
+  call cmpstr;
+  if ret = 0 then
+    type := TOK_CONST;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'v';
+    str[1] := 'a';
+    str[2] := 'r';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_VAR;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'p';
+    str[1] := 'r';
+    str[2] := 'o';
+    str[3] := 'c';
+    str[4] := 'e';
+    str[5] := 'd';
+    str[6] := 'u';
+    str[7] := 'r';
+    str[8] := 'e';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_PROCEDURE;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'c';
+    str[1] := 'a';
+    str[2] := 'l';
+    str[3] := 'l';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_CALL;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'b';
+    str[1] := 'e';
+    str[2] := 'g';
+    str[3] := 'i';
+    str[4] := 'n';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_BEGIN;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'e';
+    str[1] := 'n';
+    str[2] := 'd';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_END;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'i';
+    str[1] := 'f';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_IF;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 't';
+    str[1] := 'h';
+    str[2] := 'e';
+    str[3] := 'n';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_THEN;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'e';
+    str[1] := 'l';
+    str[2] := 's';
+    str[3] := 'e';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_ELSE;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'w';
+    str[1] := 'h';
+    str[2] := 'i';
+    str[3] := 'l';
+    str[3] := 'e';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_WHILE;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'd';
+    str[1] := 'o';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_DO;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'o';
+    str[1] := 'd';
+    str[2] := 'd';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_ODD;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'w';
+    str[1] := 'r';
+    str[2] := 'i';
+    str[3] := 't';
+    str[4] := 'e';
+    str[5] := 'I';
+    str[6] := 'n';
+    str[7] := 't';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_WRITEINT;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'w';
+    str[1] := 'r';
+    str[2] := 'i';
+    str[3] := 't';
+    str[4] := 'e';
+    str[5] := 'C';
+    str[6] := 'h';
+    str[7] := 'a';
+    str[8] := 'r';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_WRITECHAR;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'w';
+    str[1] := 'r';
+    str[2] := 'i';
+    str[3] := 't';
+    str[4] := 'e';
+    str[5] := 'S';
+    str[6] := 't';
+    str[7] := 'r';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_WRITESTR;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'r';
+    str[1] := 'e';
+    str[2] := 'a';
+    str[3] := 'd';
+    str[4] := 'I';
+    str[5] := 'n';
+    str[6] := 't';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_READINT;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'r';
+    str[1] := 'e';
+    str[2] := 'a';
+    str[3] := 'd';
+    str[4] := 'C';
+    str[5] := 'h';
+    str[6] := 'a';
+    str[7] := 'r';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_READCHAR;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'i';
+    str[1] := 'n';
+    str[2] := 't';
+    str[3] := 'o';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_INTO;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 's';
+    str[1] := 'i';
+    str[2] := 'z';
+    str[3] := 'e';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_SIZE;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'e';
+    str[1] := 'x';
+    str[2] := 'i';
+    str[3] := 't';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_EXIT;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'a';
+    str[1] := 'n';
+    str[2] := 'd';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_AND;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'o';
+    str[1] := 'r';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_OR;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'n';
+    str[1] := 'o';
+    str[2] := 't';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_NOT;
+  end;
+
+  if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'm';
+    str[1] := 'o';
+    str[2] := 'd';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_MODULO;
+  end;
+
+  if ret # 0 then
+    type := TOK_IDENT;
+end;
+
+procedure number;
+  var i, loop, value;
+begin
+  i := 0;
+  loop := 1;
+  value := 0;
+
+  while loop # 0 do
+  begin
+    loop := 0;
+
+    if raw[loc] >= '0' then
+    begin
+      if raw[loc] <= '9' then
+      begin
+        loop := 1;
+        token[i] := raw[loc];
+        i := i + 1;
+        if i = 256 then
+        begin
+          errstr[0] := 't';
+          errstr[1] := 'o';
+          errstr[2] := 'k';
+          errstr[3] := 'e';
+          errstr[4] := 'n';
+          errstr[5] := ' ';
+          errstr[6] := 't';
+          errstr[7] := 'o';
+          errstr[8] := 'o';
+          errstr[9] := ' ';
+          errstr[10] := 'l';
+          errstr[11] := 'o';
+          errstr[12] := 'n';
+          errstr[13] := 'g';
+          call error
+        end;
+
+        { XXX: sanity checking }
+        value := value * 10;
+        value := value + (raw[loc] - '0')
+      end;
+    end;
+
+    if loop = 0 then
+    begin
+      if raw[loc] = '_' then
+        loop := 1;
+    end;
+
+    if loop # 0 then
+      loc := loc + 1;
+  end;
+
+  loc := loc - 1;
+
+  type := TOK_NUMBER;
+end;
+
+procedure string;
+  var i, loop;
+begin
+  i := 1;
+  loop := 1;
+
+  loc := loc + 1;
+  token[0] := '"';
+  while loop # 0 do
+  begin
+    if raw[loc] = '''' then
+    begin
+      loc := loc + 1;
+      if raw[loc] # '''' then
+        loop := 0
+      else
+      begin
+        { XXX: sanity check }
+        token[i] := '\\';
+        i := i + 1;
+        token[i] := raw[loc];
+        i := i + 1
+      end;
+    end
+    else if raw[loc] = '\n' then
+    begin
+      errstr[0] := 'u';
+      errstr[1] := 'n';
+      errstr[2] := 't';
+      errstr[3] := 'e';
+      errstr[4] := 'r';
+      errstr[5] := 'm';
+      errstr[6] := 'i';
+      errstr[7] := 'n';
+      errstr[8] := 'a';
+      errstr[9] := 't';
+      errstr[10] := 'e';
+      errstr[11] := 'd';
+      errstr[12] := ' ';
+      errstr[13] := 's';
+      errstr[14] := 't';
+      errstr[15] := 'r';
+      errstr[16] := 'i';
+      errstr[17] := 'n';
+      errstr[18] := 'g';
+      call error
+    end
+    else if raw[loc] = '\0' then
+    begin
+      errstr[0] := 'u';
+      errstr[1] := 'n';
+      errstr[2] := 't';
+      errstr[3] := 'e';
+      errstr[4] := 'r';
+      errstr[5] := 'm';
+      errstr[6] := 'i';
+      errstr[7] := 'n';
+      errstr[8] := 'a';
+      errstr[9] := 't';
+      errstr[10] := 'e';
+      errstr[11] := 'd';
+      errstr[12] := ' ';
+      errstr[13] := 's';
+      errstr[14] := 't';
+      errstr[15] := 'r';
+      errstr[16] := 'i';
+      errstr[17] := 'n';
+      errstr[18] := 'g';
+      call error
+    end
+    else
+    begin
+      { XXX: sanity check }
+      token[i] := raw[loc];
+      i := i + 1
+    end;
+
+    if loop # 0 then
+      loc := loc + 1;
+  end;
+
+  loc := loc - 1;
+
+  token[i] := '"';
+
+  if i = 2 then
+  begin
+    token[0] := '''';
+    token[2] := '''';
+    type := TOK_NUMBER
+  end
+  else if i = 3 then
+  begin
+    if token[1] = '\\' then
+    begin
+      token[0] := '''';
+      token[3] := '''';
+      type := TOK_NUMBER
+    end;
+  end
+  else
+    type := TOK_STRING;
+end;
+
+procedure lex;
+  var whitespace, isident, isnumber;
+begin
+  isident := 0;
+  isnumber := 0;
+
+  whitespace := 1;
+  while whitespace = 1 do
+  begin
+    if raw[loc] = ' ' then
+    begin
+      whitespace := 1;
+      loc := loc + 1;
+    end
+    else if raw[loc] = '\t' then
+    begin
+      whitespace := 1;
+      loc := loc + 1;
+    end
+    else if raw[loc] = '\n' then
+    begin
+      whitespace := 1;
+      loc := loc + 1;
+      line := line + 1;
+    end
+    else
+      whitespace := 0
+  end;
+
+  if raw[loc] >= 'A' then
+  begin
+    if raw[loc] <= 'Z' then
+    begin
+      isident := 1;
+      call ident;
+    end;
+  end;
+
+  if isident = 0 then
+  begin
+    if raw[loc] >= 'a' then
+    begin
+      if raw[loc] <= 'z' then
+      begin
+        isident := 1;
+        call ident;
+      end;
+    end;
+  end;
+
+  if isident = 0 then
+  begin
+    if raw[loc] = '_' then
+    begin
+      isident := 1;
+      call ident;
+    end;
+  end;
+
+  if isident = 0 then
+  begin
+    if raw[loc] >= '0' then
+    begin
+      if raw[loc] <= '9' then
+      begin
+        isnumber := 1;
+        call number;
+      end;
+    end;
+  end;
+
+  if isident = 0 then
+  begin
+    if isnumber = 0 then
+    begin
+      if raw[loc] = '{' then
+      begin
+        call comment;
+        type := -1
+      end
+      else if raw[loc] = '.' then
+        type := TOK_DOT
+      else if raw[loc] = '=' then
+        type := TOK_EQUAL
+      else if raw[loc] = ',' then
+        type := TOK_COMMA
+      else if raw[loc] = ';' then
+        type := TOK_SEMICOLON
+      else if raw[loc] = '#' then
+        type := TOK_HASH
+      else if raw[loc] = '+' then
+        type := TOK_PLUS
+      else if raw[loc] = '-' then
+        type := TOK_MINUS
+      else if raw[loc] = '*' then
+        type := TOK_MULTIPLY
+      else if raw[loc] = '/' then
+        type := TOK_DIVIDE
+      else if raw[loc] = '%' then
+        type := TOK_MODULO
+      else if raw[loc] = '(' then
+        type := TOK_LPAREN
+      else if raw[loc] = ')' then
+        type := TOK_RPAREN
+      else if raw[loc] = '[' then
+        type := TOK_LBRACK
+      else if raw[loc] = ']' then
+        type := TOK_RBRACK
+      else if raw[loc] = '<' then
+      begin
+        loc := loc + 1;
+        if raw[loc] = '=' then
+          type := TOK_LTHANE
+        else if raw[loc] = '>' then
+          type := TOK_HASH
+        else
+        begin
+          loc := loc - 1;
+          type := TOK_LTHAN
+        end;
+      end
+      else if raw[loc] = '>' then
+      begin
+        loc := loc + 1;
+        if raw[loc] = '=' then
+          type := TOK_GTHAN;
+      end
+      else if raw[loc] = ':' then
+      begin
+        loc := loc + 1;
+        if raw[loc] # '=' then
+        begin
+          errstr[0] := 'u';
+          errstr[1] := 'n';
+          errstr[2] := 'k';
+          errstr[3] := 'n';
+          errstr[4] := 'o';
+          errstr[5] := 'w';
+          errstr[6] := 'n';
+          errstr[7] := ' ';
+          errstr[8] := 't';
+          errstr[9] := 'o';
+          errstr[10] := 'k';
+          errstr[11] := 'e';
+          errstr[12] := 'n';
+          errstr[13] := ':';
+          errstr[14] := ' ';
+          errstr[15] := '''';
+          errstr[16] := ':';
+          errstr[17] := raw[loc];
+          errstr[18] := '''';
+          call error
+        end;
+
+        type := TOK_ASSIGN;
+      end
+      else if raw[loc] = '''' then
+      begin
+        call string;
+        type := TOK_STRING;
+      end
+      else if raw[loc] = '\0' then
+        type := 0
+      else
+      begin
+        errstr[0] := 'u';
+        errstr[1] := 'n';
+        errstr[2] := 'k';
+        errstr[3] := 'n';
+        errstr[4] := 'o';
+        errstr[5] := 'w';
+        errstr[6] := 'n';
+        errstr[7] := ' ';
+        errstr[8] := 't';
+        errstr[9] := 'o';
+        errstr[10] := 'k';
+        errstr[11] := 'e';
+        errstr[12] := 'n';
+        errstr[13] := ':';
+        errstr[14] := ' ';
+        errstr[15] := '''';
+        errstr[16] := raw[loc];
+        errstr[17] := '''';
+        call error
+      end;
+    end;
+  end;
+
+  loc := loc + 1
+end;
 
 { Code generator }
 
 { Parser }
 
 procedure parse;
+  var i;
 begin
-  writeStr raw
+  while type # 0 do
+  begin
+    i := 0;
+    while i < 256 do { sizeof(token) }
+    begin
+      token[i] := '\0';
+      i := i + 1;
+    end;
+
+    call lex;
+    if type > 0 then
+    begin
+      writeInt line;
+      writeChar '|';
+      writeInt type;
+      writeChar '\t';
+
+      if token[0] # 0 then
+        writeStr token
+      else if type = TOK_ASSIGN then
+        writeStr ':='
+      else if type = TOK_LTHANE then
+        writeChar '<'
+      else if type = TOK_GTHANE then
+        writeChar '>'
+      else
+        writeChar type;
+
+      writeChar '\n';
+    end;
+  end;
 end;
 
 { Main }
 
 begin
+  line := 1; { Line counting starts at 1 }
+  type := -1; { To force first run }
+
   call readin;
   call parse
 end.
