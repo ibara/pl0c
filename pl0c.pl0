@@ -202,6 +202,14 @@ begin
   i := 0;
   loop := 1;
 
+  while i < 256 do
+  begin
+    token[i] := '\0';
+    i := i + 1
+  end;
+
+  i := 0;
+
   while loop # 0 do
   begin
     loop := 0;
@@ -657,6 +665,14 @@ begin
   loop := 1;
   value := 0;
 
+  while i < 256 do
+  begin
+    token[i] := '\0';
+    i := i + 1
+  end;
+
+  i := 0;
+
   while loop # 0 do
   begin
     loop := 0;
@@ -711,8 +727,16 @@ end;
 procedure string;
   var i, loop;
 begin
-  i := 1;
+  i := 0;
   loop := 1;
+
+  while i < 256 do
+  begin
+    token[i] := '\0';
+    i := i + 1
+  end;
+
+  i := 1;
 
   type := TOK_STRING;
 
@@ -818,12 +842,6 @@ begin
   isident := 0;
   isnumber := 0;
   i := 0;
-
-  while i < 256 do
-  begin
-    token[i] := '\0';
-    i := i + 1
-  end;
 
   whitespace := 1;
   while whitespace = 1 do
@@ -1357,7 +1375,65 @@ begin
 end;
 
 procedure arraycheck;
+  var i, n, p, save;
 begin
+  i := 0;
+  save := 0;
+
+  while i < symtabcnt do
+  begin
+    call clrstr;
+    n := 0;
+    p := 35 * i;
+    while n < 32 do
+    begin
+      str[n] := symtab[p];
+      p := p + 1;
+      n := n + 1
+    end;
+    call cmpstr;
+    if ret = 0 then
+      save := 35 * i;
+    i := i + 1
+  end;
+
+  if save = 0 then
+  begin
+    errstr[0] := 'u';
+    errstr[1] := 'n';
+    errstr[2] := 'd';
+    errstr[3] := 'e';
+    errstr[4] := 'f';
+    errstr[5] := 'i';
+    errstr[6] := 'n';
+    errstr[7] := 'e';
+    errstr[8] := 'd';
+    errstr[9] := ' ';
+    errstr[10] := 's';
+    errstr[11] := 'y';
+    errstr[12] := 'm';
+    errstr[13] := 'b';
+    errstr[14] := 'o';
+    errstr[15] := 'l';
+    call error
+  end;
+
+  if symtab[save + 34] = 0 then
+  begin
+    errstr[0] := 'n';
+    errstr[1] := 'o';
+    errstr[2] := 't';
+    errstr[3] := ' ';
+    errstr[4] := 'a';
+    errstr[5] := 'n';
+    errstr[6] := ' ';
+    errstr[7] := 'a';
+    errstr[8] := 'r';
+    errstr[9] := 'r';
+    errstr[10] := 'a';
+    errstr[11] := 'y';
+    call error
+  end;
 end;
 
 procedure arraysize;
