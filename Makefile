@@ -4,7 +4,7 @@ CC ?=		cc
 CFLAGS ?=	-g -O2 -DHAVE_STRTONUM
 
 PREFIX ?=	/usr/local
-MANDIR ?=	/usr/local/man
+MANDIR ?=	${PREFIX}/man
 
 PROG =	pl0c
 OBJS =	pl0c.o
