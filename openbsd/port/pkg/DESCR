@@ -1,0 +1,4 @@
+pl0c is a compiler for the PL/0 language. It reads in PL/0 source code
+from stdin and outputs equivalent C source code to stdout.
+
+You can pipe the output of pl0c to a C compiler to produce executables.
