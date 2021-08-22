@@ -76,27 +76,12 @@ begin
   a := 96;
   if err = E_INVALID then
   begin
-    writeChar (a + 9);  { i }
-    writeChar (a + 14); { n }
-    writeChar (a + 22); { v }
-    writeChar (a + 1);  { a }
-    writeChar (a + 12); { l }
-    writeChar (a + 9);  { i }
-    writeChar (a + 4);  { d }
-    writeChar 10;
+    writeStr 'invalid\n';
     exit 1;
   end
   else if err = E_OVERFLOW then
   begin
-    writeChar (a + 15); { o }
-    writeChar (a + 22); { v }
-    writeChar (a + 5);  { e }
-    writeChar (a + 18); { r }
-    writeChar (a + 6);  { f }
-    writeChar (a + 12); { l }
-    writeChar (a + 15); { o }
-    writeChar (a + 23); { w }
-    writeChar 10;
+    writeStr 'overflow\n';
     exit 1;
   end
   else
