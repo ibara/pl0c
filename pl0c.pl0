@@ -74,7 +74,7 @@ const
 var
   raw size 1048576, { 8 MB, can hole up to 1 MB source code files }
   loc, { Where we are in the input code }
-  symtab size 1048576, { 8 MB, can hold up to 30840 symbols }
+  symtab size 1048576, { 8 MB, can hold up to 29960 symbols }
   symtype, { For addsymbol }
   errstr size 35, { error string }
   token size 256, { 255 characters + '\0' }
@@ -84,6 +84,7 @@ var
   ret, { Return code for procedures that need one }
   depth, { Track nested subroutines }
   proc, { Track when we're inside a subroutine }
+  value, { For number processing }
   line { line number }
 ;
 
@@ -650,7 +651,7 @@ begin
 end;
 
 procedure number;
-  var i, loop, value;
+  var i, loop;
 begin
   i := 0;
   loop := 1;
@@ -1015,6 +1016,11 @@ end;
 
 { Code generator }
 
+procedure cg_end;
+begin
+  writeStr '/* PL/0 compiler 1.0.0 */\n'
+end;
+
 { Parser }
 
 procedure next;
@@ -1306,7 +1312,22 @@ begin
 end;
 
 procedure addsymbol;
+  var i, n;
 begin
+  i := symtabcnt * 35; { First fresh location in symbol table }
+  n := 0;
+  while n < 32 do
+  begin
+    symtab[i] := token[n];
+    i := i + 1;
+    n := n + 1
+  end;
+  symtab[i] := symtype;
+  i := i + 1;
+  symtab[i] := depth - 1;
+  i := i + 1;
+  symtab[i] := 0;
+  symtabcnt := symtabcnt + 1
 end;
 
 procedure arraycheck;
@@ -1314,7 +1335,95 @@ begin
 end;
 
 procedure arraysize;
+  var i;
 begin
+  i := 0;
+
+  i := 35 * (symtabcnt - 1);
+  if symtab[i + 32] # TOK_VAR then
+  begin
+    errstr[0] := 'a';
+    errstr[1] := 'r';
+    errstr[2] := 'r';
+    errstr[3] := 'a';
+    errstr[4] := 'y';
+    errstr[5] := 's';
+    errstr[6] := ' ';
+    errstr[7] := 'm';
+    errstr[8] := 'u';
+    errstr[9] := 's';
+    errstr[10] := 't';
+    errstr[11] := ' ';
+    errstr[12] := 'b';
+    errstr[13] := 'e';
+    errstr[14] := ' ';
+    errstr[15] := 'd';
+    errstr[16] := 'e';
+    errstr[17] := 'c';
+    errstr[18] := 'l';
+    errstr[19] := 'a';
+    errstr[20] := 'r';
+    errstr[21] := 'e';
+    errstr[22] := 'd';
+    errstr[23] := ' ';
+    errstr[24] := 'w';
+    errstr[25] := 'i';
+    errstr[26] := 't';
+    errstr[27] := 'h';
+    errstr[28] := ' ';
+    errstr[29] := '"';
+    errstr[30] := 'v';
+    errstr[31] := 'a';
+    errstr[32] := 'r';
+    errstr[33] := '"';
+    call error
+  end;
+
+  { XXX: sanity check }
+  symtab[i + 34] := value;
+  if value < 1 then
+  begin
+    errstr[0] := 'i';
+    errstr[1] := 'n';
+    errstr[2] := 'v';
+    errstr[3] := 'a';
+    errstr[4] := 'l';
+    errstr[5] := 'i';
+    errstr[6] := 'd';
+    errstr[7] := ' ';
+    errstr[8] := 'a';
+    errstr[9] := 'r';
+    errstr[10] := 'r';
+    errstr[11] := 'a';
+    errstr[12] := 'y';
+    errstr[13] := ' ';
+    errstr[14] := 's';
+    errstr[15] := 'i';
+    errstr[16] := 'z';
+    errstr[17] := 'e';
+    call error
+  end;
+end;
+
+procedure initsymtab;
+  var i;
+begin
+  symtab[0] := 'm';
+  symtab[1] := 'a';
+  symtab[2] := 'i';
+  symtab[3] := 'n';
+  i := 4;
+  while i < 32 do
+  begin
+    symtab[i] := '\0';
+    i := i + 1
+  end;
+  symtab[i] := TOK_PROCEDURE; { type }
+  i := i + 1;
+  symtab[i] := 0; { depth }
+  i := i + 1;
+  symtab[i] := 0; { size }
+  symtabcnt := 1 { 1 item in the symbol table }
 end;
 
 procedure symcheck;
@@ -1913,6 +2022,39 @@ begin
   end;
 end;
 
+procedure dumpsymtab;
+  var i, n, p;
+begin
+  i := 0;
+
+  while i < symtabcnt do
+  begin
+    n := i * 35;
+    p := 0;
+    while symtab[n] # '\0' do
+    begin
+      writeChar symtab[n];
+      n := n + 1;
+      p := p + 1
+    end;
+    while p < 32 do
+    begin
+      p := p + 1;
+      n := n + 1
+    end;
+    writeChar ' ';
+    writeInt symtab[n];
+    n := n + 1;
+    writeChar '|';
+    writeInt symtab[n];
+    n := n + 1;
+    writeChar '|';
+    writeInt symtab[n];
+    writeChar '\n';
+    i := i + 1
+  end;
+end;
+
 procedure parse;
 begin
   { call cg_init; }
@@ -1953,7 +2095,9 @@ begin
     call error;
   end;
 
-  { call cg_end }
+  call cg_end;
+
+  call dumpsymtab
 end;
 
 { Main }
@@ -1963,5 +2107,6 @@ begin
   type := -1; { To force first run }
 
   call readin;
+  call initsymtab;
   call parse
 end.
