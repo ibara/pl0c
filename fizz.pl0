@@ -41,9 +41,15 @@ begin
     o := 0;
     call divthree;
     call divfive;
-    if o = 1 then begin o := 300; call write end;
-    if o = 2 then begin o := 500; call write end;
-    if o = 3 then begin o := 1500; call write end;
-    if o = 0 then begin o := x; call write end;
+    if o = 1 then
+      writeStr 'Fizz'; 
+    if o = 2 then
+      writeStr 'Buzz';
+    if o = 3 then
+      writeStr 'FizzBuzz';
+    if o = 0 then
+      writeInt x;
+    writeChar '\n';
   end;
 end.
+
