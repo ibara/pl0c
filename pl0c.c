@@ -1135,8 +1135,8 @@ block(void)
 			if (type == TOK_NUMBER) {
 				arraysize();
 				cg_array();
-				expect(TOK_NUMBER);
 			}
+			expect(TOK_NUMBER);
 		}
 		cg_semicolon();
 		while (type == TOK_COMMA) {
