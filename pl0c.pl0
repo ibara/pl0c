@@ -1301,6 +1301,16 @@ begin
       errstr[25] := 'y';
       call error
     end;
+
+    writeStr '__writestridx = 0;\n';
+    writeStr 'while(';
+    writeStr token;
+    writeStr '[__writestridx]!=''\\0''&&__writestridx<';
+    writeInt symtab[save + 34];
+    writeStr ')\n';
+    writeStr '(void)fputc((unsigned char)';
+    writeStr token;
+    writeStr '[__writestridx++],stdout);\n'
   end
   else
   begin
