@@ -19,3 +19,9 @@ If you are on a platform that does not include
 in its libc, remove `-DHAVE_STRTONUM` from `CFLAGS`.
 In this case, you'll have to put `strtonum.c` in the
 same directory as `pl0c`. This will be improved.
+
+Version
+-------
+The current version is `1.0.0`.
+
+You can find a source tarball in the Releases tab.
