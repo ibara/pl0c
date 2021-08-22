@@ -48,6 +48,7 @@ const
   TOK_AND	= '&',
   TOK_OR	= '|',
   TOK_NOT	= '~',
+  TOK_FORWARD	= 'F',
   TOK_DOT	= '.',
   TOK_EQUAL	= '=',
   TOK_COMMA	= ',',
@@ -71,17 +72,22 @@ const
 ;
 
 var
-  raw size 1048576, { 8 MB, can hold files up to 1 MB in size }
+  raw size 1048576, { 8 MB, can hole up to 1 MB source code files }
   loc, { Where we are in the input code }
   symtab size 1048576, { 8 MB, can hold up to 30840 symbols }
-  errstr size 32, { error string }
+  symtype, { For addsymbol }
+  errstr size 35, { error string }
   token size 256, { 255 characters + '\0' }
   type, { token type }
   str size 256, { For cmpstr }
   symtabcnt, { To keep track of number of symtab entries }
   ret, { Return code for procedures that need one }
+  depth, { Track nested subroutines }
+  proc, { Track when we're inside a subroutine }
   line { line number }
 ;
+
+forward expression;
 
 { Misc. functions }
 
@@ -438,7 +444,7 @@ begin
     str[1] := 'h';
     str[2] := 'i';
     str[3] := 'l';
-    str[3] := 'e';
+    str[4] := 'e';
     call cmpstr;
     if ret = 0 then
       type := TOK_WHILE;
@@ -625,6 +631,21 @@ begin
   end;
 
   if ret # 0 then
+  begin
+    call clrstr;
+    str[0] := 'f';
+    str[1] := 'o';
+    str[2] := 'r';
+    str[3] := 'w';
+    str[4] := 'a';
+    str[5] := 'r';
+    str[6] := 'd';
+    call cmpstr;
+    if ret = 0 then
+      type := TOK_FORWARD;
+  end;
+
+  if ret # 0 then
     type := TOK_IDENT;
 end;
 
@@ -691,6 +712,8 @@ procedure string;
 begin
   i := 1;
   loop := 1;
+
+  type := TOK_STRING;
 
   loc := loc + 1;
   token[0] := '"';
@@ -785,16 +808,21 @@ begin
       token[3] := '''';
       type := TOK_NUMBER
     end;
-  end
-  else
-    type := TOK_STRING;
+  end;
 end;
 
 procedure lex;
-  var whitespace, isident, isnumber;
+  var i, whitespace, isident, isnumber;
 begin
   isident := 0;
   isnumber := 0;
+  i := 0;
+
+  while i < 256 do
+  begin
+    token[i] := '\0';
+    i := i + 1
+  end;
 
   whitespace := 1;
   while whitespace = 1 do
@@ -915,7 +943,12 @@ begin
       begin
         loc := loc + 1;
         if raw[loc] = '=' then
-          type := TOK_GTHAN;
+          type := TOK_GTHANE
+        else
+        begin
+          loc := loc - 1;
+          type := TOK_GTHAN
+        end;
       end
       else if raw[loc] = ':' then
       begin
@@ -949,7 +982,6 @@ begin
       else if raw[loc] = '''' then
       begin
         call string;
-        type := TOK_STRING;
       end
       else if raw[loc] = '\0' then
         type := 0
@@ -985,40 +1017,943 @@ end;
 
 { Parser }
 
-procedure parse;
-  var i;
+procedure next;
 begin
-  while type # 0 do
-  begin
-    i := 0;
-    while i < 256 do { sizeof(token) }
-    begin
-      token[i] := '\0';
-      i := i + 1;
-    end;
-
+  call lex;
+  while type = -1 do
     call lex;
-    if type > 0 then
+end;
+
+procedure syntax;
+begin
+  errstr[0] := 's';
+  errstr[1] := 'y';
+  errstr[2] := 'n';
+  errstr[3] := 't';
+  errstr[4] := 'a';
+  errstr[5] := 'x';
+  errstr[6] := ' ';
+  errstr[7] := 'e';
+  errstr[8] := 'r';
+  errstr[9] := 'r';
+  errstr[10] := 'o';
+  errstr[11] := 'r';
+  call error
+end;
+
+procedure expect_begin;
+begin
+  if type # TOK_BEGIN then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_call;
+begin
+  if type # TOK_CALL then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_const;
+begin
+  if type # TOK_CONST then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_do;
+begin
+  if type # TOK_DO then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_else;
+begin
+  if type # TOK_ELSE then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_end;
+begin
+  if type # TOK_END then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_exit;
+begin
+  if type # TOK_EXIT then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_forward;
+begin
+  if type # TOK_FORWARD then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_ident;
+begin
+  if type # TOK_IDENT then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_if;
+begin
+  if type # TOK_IF then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_into;
+begin
+  if type # TOK_INTO then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_number;
+begin
+  if type # TOK_NUMBER then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_odd;
+begin
+  if type # TOK_ODD then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_procedure;
+begin
+  if type # TOK_PROCEDURE then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_readchar;
+begin
+  if type # TOK_READCHAR then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_readint;
+begin
+  if type # TOK_READINT then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_size;
+begin
+  if type # TOK_SIZE then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_string;
+begin
+  if type # TOK_STRING then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_then;
+begin
+  if type # TOK_THEN then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_var;
+begin
+  if type # TOK_VAR then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_while;
+begin
+  if type # TOK_WHILE then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_writechar;
+begin
+  if type # TOK_WRITECHAR then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_writeint;
+begin
+  if type # TOK_WRITEINT then
+    call syntax;
+
+  call next;
+end;
+
+procedure expect_writestr;
+begin
+  if type # TOK_WRITESTR then
+    call syntax;
+
+  call next;
+end;
+
+procedure assign;
+begin
+  if type # TOK_ASSIGN then
+    call syntax;
+
+  call next;
+end;
+
+procedure comma;
+begin
+  if type # TOK_COMMA then
+    call syntax;
+
+  call next;
+end;
+
+procedure dot;
+begin
+  if type # TOK_DOT then
+    call syntax;
+
+  call next;
+end;
+
+procedure equal;
+begin
+  if type # TOK_EQUAL then
+    call syntax;
+
+  call next;
+end;
+
+procedure lbrack;
+begin
+  if type # TOK_LBRACK then
+    call syntax;
+
+  call next;
+end;
+
+procedure lparen;
+begin
+  if type # TOK_LPAREN then
+    call syntax;
+
+  call next;
+end;
+
+procedure rbrack;
+begin
+  if type # TOK_RBRACK then
+    call syntax;
+
+  call next;
+end;
+
+procedure rparen;
+begin
+  if type # TOK_RPAREN then
+    call syntax;
+
+  call next;
+end;
+
+procedure semicolon;
+begin
+  if type # TOK_SEMICOLON then
+    call syntax;
+
+  call next;
+end;
+
+procedure addsymbol;
+begin
+end;
+
+procedure arraycheck;
+begin
+end;
+
+procedure arraysize;
+begin
+end;
+
+procedure symcheck;
+begin
+end;
+
+procedure destroysymbols;
+begin
+end;
+
+procedure factor;
+begin
+  if type = TOK_IDENT then
+  begin
+    symtype := CHECK_RHS;
+    call symcheck;
+    { call cg_symbol; }
+    call expect_ident;
+    if type = TOK_LBRACK then
     begin
-      writeInt line;
-      writeChar '|';
-      writeInt type;
-      writeChar '\t';
+      call arraycheck;
+      { call cg_symbol; }
+      call lbrack;
+      call expression;
+      if type = TOK_RBRACK then
+      begin
+        { call cg_symbol; }
+      end;
+      call rbrack;
+    end;
+  end
+  else if type = TOK_NUMBER then
+  begin
+    { call cg_symbol; }
+    call expect_number
+  end
+  else if type = TOK_LPAREN then
+  begin
+    { call cg_symbol; }
+    call lparen;
+    call expression;
+    if type = TOK_RPAREN then
+    begin
+      { call cg_symbol; }
+    end;
+    call rparen;
+  end;
+end;
 
-      if token[0] # 0 then
-        writeStr token
-      else if type = TOK_ASSIGN then
-        writeStr ':='
-      else if type = TOK_LTHANE then
-        writeChar '<'
-      else if type = TOK_GTHANE then
-        writeChar '>'
-      else
-        writeChar type;
+procedure term;
+  var loop;
+begin
+  loop := 1;
 
-      writeChar '\n';
+  call factor;
+
+  while loop # 0 do
+  begin
+    loop := 0;
+
+    if type = TOK_MULTIPLY then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call factor;
+    end
+    else if type = TOK_DIVIDE then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call factor;
+    end
+    else if type = TOK_MODULO then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call factor;
+    end
+    else if type = TOK_AND then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call factor;
     end;
   end;
+end;
+
+procedure expression;
+  var loop;
+begin
+  loop := 1;
+
+  if type = TOK_PLUS then
+  begin
+    { call cg_symbol; }
+    call next
+  end
+  else if type = TOK_MINUS then
+  begin
+    { call cg_symbol; }
+    call next
+  end;
+
+  call term;
+
+  while loop # 0 do
+  begin
+    loop := 0;
+
+    if type = TOK_PLUS then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call term;
+    end
+    else if type = TOK_MINUS then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call term;
+    end
+    else if type = TOK_OR then
+    begin
+      loop := 1;
+      { call cg_symbol; }
+      call next;
+      call term;
+    end;
+  end;
+end;
+
+procedure condition;
+begin
+  if type = TOK_ODD then
+  begin
+    { call cg_symbol; }
+    call expect_odd;
+    call expression;
+    { call cg_odd }
+  end
+  else
+  begin
+    call expression;
+
+    if type = TOK_EQUAL then
+    begin
+      { call cg_symbol; }
+      call next
+    end
+    else if type = TOK_HASH then
+    begin
+      { call cg_symbol; }
+      call next
+    end
+    else if type = TOK_LTHAN then
+    begin
+      { call cg_symbol; }
+      call next
+    end
+    else if type = TOK_GTHAN then
+    begin
+      { call cg_symbol; }
+      call next
+    end
+    else if type = TOK_LTHANE then
+    begin
+      { call cg_symbol; }
+      call next
+    end
+    else if type = TOK_GTHANE then
+    begin
+      { call cg_symbol; }
+      call next
+    end
+    else
+    begin
+      errstr[0] := 'i';
+      errstr[1] := 'n';
+      errstr[2] := 'v';
+      errstr[3] := 'a';
+      errstr[4] := 'l';
+      errstr[5] := 'i';
+      errstr[6] := 'd';
+      errstr[7] := ' ';
+      errstr[8] := 'c';
+      errstr[9] := 'o';
+      errstr[10] := 'n';
+      errstr[11] := 'd';
+      errstr[12] := 'i';
+      errstr[13] := 't';
+      errstr[14] := 'i';
+      errstr[15] := 'o';
+      errstr[16] := 'n';
+      errstr[17] := 'a';
+      errstr[18] := 'l';
+      call error
+    end;
+
+    call expression;
+  end;
+end;
+
+procedure statement;
+begin
+  if type = TOK_IDENT then
+  begin
+    symtype := CHECK_LHS;
+    call symcheck;
+    { call cg_symbol; }
+    call expect_ident;
+    if type = TOK_LBRACK then
+    begin
+      call arraycheck;
+      { call cg_symbol; }
+      call lbrack;
+      call expression;
+      if type = TOK_RBRACK then
+      begin
+        { call cg_symbol; }
+      end;
+      call rbrack;
+    end;
+    if type = TOK_ASSIGN then
+    begin
+      { call cg_symbol; }
+    end;
+    call assign;
+    call expression;
+  end
+  else if type = TOK_CALL then
+  begin
+    call expect_call;
+    if type = TOK_IDENT then
+    begin
+      symtype := TOK_CALL;
+      call symcheck;
+      { call cg_call }
+    end;
+    call expect_ident;
+  end
+  else if type = TOK_BEGIN then
+  begin
+    { call cg_symbol; }
+    call expect_begin;
+    call statement;
+    while type = TOK_SEMICOLON do
+    begin
+      { call cg_semicolon; }
+      call semicolon;
+      call statement
+    end;
+    if type = TOK_END then
+    begin
+      { call cg_symbol; }
+    end;
+    call expect_end;
+  end
+  else if type = TOK_IF then
+  begin
+    { call cg_symbol; }
+    call expect_if;
+    call condition;
+    if type = TOK_THEN then
+    begin
+      { call cg_symbol; }
+    end;
+    call expect_then;
+    call statement;
+    if type = TOK_ELSE then
+    begin
+      { call cg_symbol; }
+      call expect_else;
+      call statement
+    end;
+    { call cg_closeblock }
+  end
+  else if type = TOK_WHILE then
+  begin
+    { call cg_symbol; }
+    call expect_while;
+    call condition;
+    if type = TOK_DO then
+    begin
+      { call cg_symbol; }
+    end;
+    call expect_do;
+    call statement;
+  end
+  else if type = TOK_WRITEINT then
+  begin
+    call expect_writeint;
+    { call cg_writeint; }
+    call expression;
+    { call cg_rparen; }
+    { call cg_rparen; }
+    { call cg_semicolon; }
+  end
+  else if type = TOK_WRITECHAR then
+  begin
+    call expect_writechar;
+    { call cg_writecharl }
+    call expression;
+    { call cg_rparen; }
+    { call cg_rparen; }
+    { call cg_semicolon; }
+  end
+  else if type = TOK_WRITESTR then
+  begin
+    call expect_writestr;
+    if type = TOK_IDENT then
+    begin
+      symtype := CHECK_LHS;
+      call symcheck;
+      { call cg_writestr; }
+      call expect_ident
+    end
+    else if type = TOK_STRING then
+    begin
+      { call cg_writestr; }
+      call expect_string
+    end
+    else
+    begin
+      errstr[0] := 'w';
+      errstr[1] := 'r';
+      errstr[2] := 'i';
+      errstr[3] := 't';
+      errstr[4] := 'e';
+      errstr[5] := 'S';
+      errstr[6] := 't';
+      errstr[7] := 'r';
+      errstr[8] := ' ';
+      errstr[9] := 't';
+      errstr[10] := 'a';
+      errstr[11] := 'k';
+      errstr[12] := 'e';
+      errstr[13] := 's';
+      errstr[14] := ' ';
+      errstr[15] := 'a';
+      errstr[16] := 'n';
+      errstr[17] := ' ';
+      errstr[18] := 'a';
+      errstr[19] := 'r';
+      errstr[20] := 'r';
+      errstr[21] := 'a';
+      errstr[22] := 'y';
+      errstr[23] := ' ';
+      errstr[24] := 'o';
+      errstr[25] := 'r';
+      errstr[26] := ' ';
+      errstr[27] := 'a';
+      errstr[28] := ' ';
+      errstr[29] := 's';
+      errstr[30] := 't';
+      errstr[31] := 'r';
+      errstr[32] := 'i';
+      errstr[33] := 'n';
+      errstr[34] := 'g';
+      call error
+    end;
+  end
+  else if type = TOK_READINT then
+  begin
+    call expect_readint;
+    if type = TOK_INTO then
+      call expect_into;
+    if type = TOK_IDENT then
+    begin
+      symtype := CHECK_LHS;
+      call symcheck;
+      { call cg_readint }
+    end;
+    call expect_ident;
+  end
+  else if type = TOK_READCHAR then
+  begin
+    call expect_readchar;
+    if type = TOK_INTO then
+      call expect_into;
+    if type = TOK_IDENT then
+    begin
+      symtype := CHECK_LHS;
+      call symcheck;
+      { call cg_readchar }
+    end;
+    call expect_ident;
+  end
+  else if type = TOK_EXIT then
+  begin
+    call expect_exit;
+    { call cg_exit; }
+    call expression;
+    { call cg_rparen; }
+    { call cg_semicolon }
+  end;
+end;
+
+procedure block;
+begin
+  if depth > 1 then
+  begin
+    errstr[0] := 'n';
+    errstr[1] := 'e';
+    errstr[2] := 's';
+    errstr[3] := 't';
+    errstr[4] := 'i';
+    errstr[5] := 'n';
+    errstr[6] := 'g';
+    errstr[7] := ' ';
+    errstr[8] := 'd';
+    errstr[9] := 'e';
+    errstr[10] := 'p';
+    errstr[11] := 't';
+    errstr[12] := 'h';
+    errstr[13] := ' ';
+    errstr[14] := 'e';
+    errstr[15] := 'x';
+    errstr[16] := 'c';
+    errstr[17] := 'e';
+    errstr[18] := 'e';
+    errstr[19] := 'd';
+    errstr[20] := 'e';
+    errstr[21] := 'd';
+    call error
+  end;
+
+  depth := depth + 1;
+
+  if type = TOK_CONST then
+  begin
+    call expect_const;
+    if type = TOK_IDENT then
+    begin
+      symtype := TOK_CONST;
+      call addsymbol;
+      { call cg_const }
+    end;
+    call expect_ident;
+    call equal;
+    if type = TOK_NUMBER then
+    begin
+      { call cg_symbol; }
+      { call cg_semicolon }
+    end;
+    call expect_number;
+    while type = TOK_COMMA do
+    begin
+      call comma;
+      if type = TOK_IDENT then
+      begin
+        symtype := TOK_CONST;
+        call addsymbol;
+        { call cg_const }
+      end;
+      call expect_ident;
+      call equal;
+      if type = TOK_NUMBER then
+      begin
+        { call cg_symbol; }
+        { call cg_semicolon }
+      end;
+      call expect_number;
+    end;
+    call semicolon;
+  end;
+
+  if type = TOK_VAR then
+  begin
+    call expect_var;
+    if type = TOK_IDENT then
+    begin
+      symtype := TOK_VAR;
+      call addsymbol;
+      { cg_var }
+    end;
+    call expect_ident;
+    if type = TOK_SIZE then
+    begin
+      call expect_size;
+      if type = TOK_NUMBER then
+      begin
+        call arraysize;
+        { call cg_array; }
+      end;
+      call expect_number;
+    end;
+    { call cg_semicolon; }
+    while type = TOK_COMMA do
+    begin
+      call comma;
+      if type = TOK_IDENT then
+      begin
+        symtype := TOK_VAR;
+        call addsymbol;
+        { call cg_var }
+      end;
+      call expect_ident;
+      if type = TOK_SIZE then
+      begin
+        call expect_size;
+        if type = TOK_NUMBER then
+        begin
+          call arraysize;
+          { call cg_array; }
+          call expect_number
+        end;
+      end;
+      { call cg_semicolon }
+    end;
+    call semicolon;
+    { call cg_crlf }
+  end;
+
+  while type = TOK_FORWARD do
+  begin
+    call expect_forward;
+    if type = TOK_IDENT then
+    begin
+      symtype := TOK_FORWARD;
+      call addsymbol;
+      { call cg_forward }
+    end;
+    call expect_ident;
+    call semicolon;
+  end;
+
+  while type = TOK_PROCEDURE do
+  begin
+    proc := 1;
+
+    call expect_procedure;
+    if type = TOK_IDENT then
+    begin
+      symtype := TOK_PROCEDURE;
+      call addsymbol;
+      { call cg_procedure }
+    end;
+    call expect_ident;
+    call semicolon;
+
+    call block;
+
+    call semicolon;
+
+    proc := 0;
+
+    call destroysymbols;
+  end;
+
+  if proc = 0 then
+  begin
+    { cg_procedure; }
+  end;
+
+  call statement;
+
+  { call cg_epilogue; }
+
+  depth := depth - 1;
+
+  if depth < 0 then
+  begin
+    errstr[0] := 'n';
+    errstr[1] := 'e';
+    errstr[2] := 's';
+    errstr[3] := 't';
+    errstr[4] := 'i';
+    errstr[5] := 'n';
+    errstr[6] := 'g';
+    errstr[7] := ' ';
+    errstr[8] := 'd';
+    errstr[9] := 'e';
+    errstr[10] := 'p';
+    errstr[11] := 't';
+    errstr[12] := 'h';
+    errstr[13] := ' ';
+    errstr[14] := 'f';
+    errstr[15] := 'e';
+    errstr[16] := 'l';
+    errstr[17] := 'l';
+    errstr[18] := ' ';
+    errstr[19] := 'b';
+    errstr[20] := 'e';
+    errstr[21] := 'l';
+    errstr[22] := 'o';
+    errstr[23] := 'w';
+    errstr[24] := ' ';
+    errstr[25] := '0';
+    call error;
+  end;
+end;
+
+procedure parse;
+begin
+  { call cg_init; }
+
+  call next;
+  call block;
+  call dot;
+
+  if type # 0 then
+  begin
+    errstr[0] := 'e';
+    errstr[1] := 'x';
+    errstr[2] := 't';
+    errstr[3] := 'r';
+    errstr[4] := 'a';
+    errstr[5] := ' ';
+    errstr[6] := 't';
+    errstr[7] := 'o';
+    errstr[8] := 'k';
+    errstr[9] := 'e';
+    errstr[10] := 'n';
+    errstr[11] := 's';
+    errstr[12] := ' ';
+    errstr[13] := 'a';
+    errstr[14] := 't';
+    errstr[15] := ' ';
+    errstr[16] := 'e';
+    errstr[17] := 'n';
+    errstr[18] := 'd';
+    errstr[19] := ' ';
+    errstr[20] := 'o';
+    errstr[21] := 'f';
+    errstr[22] := ' ';
+    errstr[23] := 'f';
+    errstr[24] := 'i';
+    errstr[25] := 'l';
+    errstr[26] := 'e';
+    call error;
+  end;
+
+  { call cg_end }
 end;
 
 { Main }
