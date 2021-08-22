@@ -384,6 +384,7 @@ again:
 	case '-':
 	case '*':
 	case '/':
+	case '%':
 	case '(':
 	case ')':
 	case '[':
