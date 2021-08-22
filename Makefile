@@ -12,7 +12,7 @@ all: ${OBJS}
 	${CC} ${LDFLAGS} -o ${PROG} ${OBJS}
 
 native: all
-	./pl0c pl0c.pl0 | cc -O2 -o ${NATIVE} -x c -
+	./${PROG} pl0c.pl0 | ${CC} ${CFLAGS} -o ${NATIVE} -x c -
 
 test:
 	cd tests && ./test.sh
