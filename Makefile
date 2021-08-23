@@ -29,8 +29,8 @@ final: stage3
 nobootstrap:
 	${PROG} < pl0c.pl0 | ${CC} ${CFLAGS} -o ${PROG} -x c -
 
-genbootstrap:
-	${PROG} < pl0c.pl0 | clang-format > pl0c.c
+genbootstrap: final
+	./${PROG} < pl0c.pl0 | clang-format > pl0c.c
 
 install:
 	install -d ${PREFIX}/bin
