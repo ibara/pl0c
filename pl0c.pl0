@@ -813,6 +813,26 @@ begin
       i := i + 1
     end;
 
+    if i > 256 then
+    begin
+      errstr[0] := 's';
+      errstr[1] := 't';
+      errstr[2] := 'r';
+      errstr[3] := 'i';
+      errstr[4] := 'n';
+      errstr[5] := 'g';
+      errstr[6] := ' ';
+      errstr[7] := 't';
+      errstr[8] := 'o';
+      errstr[9] := 'o';
+      errstr[10] := ' ';
+      errstr[11] := 'l';
+      errstr[12] := 'o';
+      errstr[13] := 'n';
+      errstr[14] := 'g';
+      call error
+    end;
+
     if loop # 0 then
       loc := loc + 1;
   end;
