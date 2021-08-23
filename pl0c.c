@@ -93,10 +93,48 @@ static void error(void) {
     ;
     (void)fprintf(stdout, ": ");
     ;
-    __writestridx = 0;
-    while (token[__writestridx] != '\0' && __writestridx < 256)
-      (void)fputc((unsigned char)token[__writestridx++], stdout);
-    ;
+    if (type == TOK_IDENT) {
+      {
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+      };
+    } else {
+      if (type == TOK_NUMBER) {
+        {
+          __writestridx = 0;
+          while (token[__writestridx] != '\0' && __writestridx < 256)
+            (void)fputc((unsigned char)token[__writestridx++], stdout);
+          ;
+        };
+      } else {
+        if (type == TOK_STRING) {
+          {
+            __writestridx = 0;
+            while (token[__writestridx] != '\0' && __writestridx < 256)
+              (void)fputc((unsigned char)token[__writestridx++], stdout);
+            ;
+          };
+        } else {
+          if (type < 1) {
+            {
+              (void)fprintf(stdout, "(null)");
+              ;
+            };
+          } else {
+            {
+              (void)fprintf(stdout, "%c", (unsigned char)('\''));
+              ;
+              (void)fprintf(stdout, "%c", (unsigned char)(type));
+              ;
+              (void)fprintf(stdout, "%c", (unsigned char)('\''));
+              ;
+            };
+          };
+        };
+      };
+    };
     (void)fprintf(stdout, "%c", (unsigned char)('\n'));
     ;
     exit(1);

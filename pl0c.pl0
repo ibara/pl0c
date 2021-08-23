@@ -101,7 +101,30 @@ begin
   writeStr ': ';
   writeStr errstr;
   writeStr ': ';
-  writeStr token;
+
+  if type = TOK_IDENT then
+  begin
+    writeStr token
+  end
+  else if type = TOK_NUMBER then
+  begin
+    writeStr token
+  end
+  else if type = TOK_STRING then
+  begin
+    writeStr token
+  end
+  else if type < 1 then
+  begin
+    writeStr '(null)'
+  end
+  else
+  begin
+    writeChar '''';
+    writeChar type;
+    writeChar ''''
+  end;
+
   writeChar '\n';
   exit 1
 end;
