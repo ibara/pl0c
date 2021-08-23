@@ -71,6 +71,8 @@ static long type;
 static long str[256];
 static long symtabcnt;
 static long ret;
+static long kws[200];
+static long kwidx[64];
 static long depth;
 static long proc;
 static long value;
@@ -98,6 +100,275 @@ static void error(void) {
     (void)fprintf(stdout, "%c", (unsigned char)('\n'));
     ;
     exit(1);
+    ;
+  };
+}
+
+static void setup_keywords(void) {
+  long i;
+
+  {
+    i = 0;
+    kwidx[0] = TOK_CONST;
+    kwidx[1] = i;
+    kws[i + 0] = 'c';
+    kws[i + 1] = 'o';
+    kws[i + 2] = 'n';
+    kws[i + 3] = 's';
+    kws[i + 4] = 't';
+    kws[i + 5] = '\0';
+    i = i + 6;
+    kwidx[2] = TOK_VAR;
+    kwidx[3] = i;
+    kws[i + 0] = 'v';
+    kws[i + 1] = 'a';
+    kws[i + 2] = 'r';
+    kws[i + 3] = '\0';
+    i = i + 4;
+    kwidx[4] = TOK_PROCEDURE;
+    kwidx[5] = i;
+    kws[i + 0] = 'p';
+    kws[i + 1] = 'r';
+    kws[i + 2] = 'o';
+    kws[i + 3] = 'c';
+    kws[i + 4] = 'e';
+    kws[i + 5] = 'd';
+    kws[i + 6] = 'u';
+    kws[i + 7] = 'r';
+    kws[i + 8] = 'e';
+    kws[i + 9] = '\0';
+    i = i + 10;
+    kwidx[6] = TOK_CALL;
+    kwidx[7] = i;
+    kws[i + 0] = 'c';
+    kws[i + 1] = 'a';
+    kws[i + 2] = 'l';
+    kws[i + 3] = 'l';
+    kws[i + 4] = '\0';
+    i = i + 5;
+    kwidx[8] = TOK_BEGIN;
+    kwidx[9] = i;
+    kws[i + 0] = 'b';
+    kws[i + 1] = 'e';
+    kws[i + 2] = 'g';
+    kws[i + 3] = 'i';
+    kws[i + 4] = 'n';
+    kws[i + 5] = '\0';
+    i = i + 6;
+    kwidx[10] = TOK_END;
+    kwidx[11] = i;
+    kws[i + 0] = 'e';
+    kws[i + 1] = 'n';
+    kws[i + 2] = 'd';
+    kws[i + 3] = '\0';
+    i = i + 4;
+    kwidx[12] = TOK_IF;
+    kwidx[13] = i;
+    kws[i + 0] = 'i';
+    kws[i + 1] = 'f';
+    kws[i + 2] = '\0';
+    i = i + 3;
+    kwidx[14] = TOK_THEN;
+    kwidx[15] = i;
+    kws[i + 0] = 't';
+    kws[i + 1] = 'h';
+    kws[i + 2] = 'e';
+    kws[i + 3] = 'n';
+    kws[i + 4] = '\0';
+    i = i + 5;
+    kwidx[16] = TOK_ELSE;
+    kwidx[17] = i;
+    kws[i + 0] = 'e';
+    kws[i + 1] = 'l';
+    kws[i + 2] = 's';
+    kws[i + 3] = 'e';
+    kws[i + 4] = '\0';
+    i = i + 5;
+    kwidx[18] = TOK_WHILE;
+    kwidx[19] = i;
+    kws[i + 0] = 'w';
+    kws[i + 1] = 'h';
+    kws[i + 2] = 'i';
+    kws[i + 3] = 'l';
+    kws[i + 4] = 'e';
+    kws[i + 5] = '\0';
+    i = i + 6;
+    kwidx[20] = TOK_DO;
+    kwidx[21] = i;
+    kws[i + 0] = 'd';
+    kws[i + 1] = 'o';
+    kws[i + 2] = '\0';
+    i = i + 3;
+    kwidx[22] = TOK_ODD;
+    kwidx[23] = i;
+    kws[i + 0] = 'o';
+    kws[i + 1] = 'd';
+    kws[i + 2] = 'd';
+    kws[i + 3] = '\0';
+    i = i + 4;
+    kwidx[24] = TOK_WRITEINT;
+    kwidx[25] = i;
+    kws[i + 0] = 'w';
+    kws[i + 1] = 'r';
+    kws[i + 2] = 'i';
+    kws[i + 3] = 't';
+    kws[i + 4] = 'e';
+    kws[i + 5] = 'I';
+    kws[i + 6] = 'n';
+    kws[i + 7] = 't';
+    kws[i + 8] = '\0';
+    i = i + 9;
+    kwidx[26] = TOK_WRITECHAR;
+    kwidx[27] = i;
+    kws[i + 0] = 'w';
+    kws[i + 1] = 'r';
+    kws[i + 2] = 'i';
+    kws[i + 3] = 't';
+    kws[i + 4] = 'e';
+    kws[i + 5] = 'C';
+    kws[i + 6] = 'h';
+    kws[i + 7] = 'a';
+    kws[i + 8] = 'r';
+    kws[i + 9] = '\0';
+    i = i + 10;
+    kwidx[28] = TOK_WRITESTR;
+    kwidx[29] = i;
+    kws[i + 0] = 'w';
+    kws[i + 1] = 'r';
+    kws[i + 2] = 'i';
+    kws[i + 3] = 't';
+    kws[i + 4] = 'e';
+    kws[i + 5] = 'S';
+    kws[i + 6] = 't';
+    kws[i + 7] = 'r';
+    kws[i + 8] = '\0';
+    i = i + 9;
+    kwidx[30] = TOK_READINT;
+    kwidx[31] = i;
+    kws[i + 0] = 'r';
+    kws[i + 1] = 'e';
+    kws[i + 2] = 'a';
+    kws[i + 3] = 'd';
+    kws[i + 4] = 'I';
+    kws[i + 5] = 'n';
+    kws[i + 6] = 't';
+    kws[i + 7] = '\0';
+    i = i + 8;
+    kwidx[32] = TOK_READCHAR;
+    kwidx[33] = i;
+    kws[i + 0] = 'r';
+    kws[i + 1] = 'e';
+    kws[i + 2] = 'a';
+    kws[i + 3] = 'd';
+    kws[i + 4] = 'C';
+    kws[i + 5] = 'h';
+    kws[i + 6] = 'a';
+    kws[i + 7] = 'r';
+    kws[i + 8] = '\0';
+    i = i + 9;
+    kwidx[34] = TOK_INTO;
+    kwidx[35] = i;
+    kws[i + 0] = 'i';
+    kws[i + 1] = 'n';
+    kws[i + 2] = 't';
+    kws[i + 3] = 'o';
+    kws[i + 4] = '\0';
+    i = i + 5;
+    kwidx[36] = TOK_SIZE;
+    kwidx[37] = i;
+    kws[i + 0] = 's';
+    kws[i + 1] = 'i';
+    kws[i + 2] = 'z';
+    kws[i + 3] = 'e';
+    kws[i + 4] = '\0';
+    i = i + 5;
+    kwidx[38] = TOK_EXIT;
+    kwidx[39] = i;
+    kws[i + 0] = 'e';
+    kws[i + 1] = 'x';
+    kws[i + 2] = 'i';
+    kws[i + 3] = 't';
+    kws[i + 4] = '\0';
+    i = i + 5;
+    kwidx[40] = TOK_AND;
+    kwidx[41] = i;
+    kws[i + 0] = 'a';
+    kws[i + 1] = 'n';
+    kws[i + 2] = 'd';
+    kws[i + 3] = '\0';
+    i = i + 4;
+    kwidx[42] = TOK_OR;
+    kwidx[43] = i;
+    kws[i + 0] = 'o';
+    kws[i + 1] = 'r';
+    kws[i + 2] = '\0';
+    i = i + 3;
+    kwidx[44] = TOK_NOT;
+    kwidx[45] = i;
+    kws[i + 0] = 'n';
+    kws[i + 1] = 'o';
+    kws[i + 2] = 't';
+    kws[i + 3] = '\0';
+    i = i + 4;
+    kwidx[46] = TOK_MODULO;
+    kwidx[47] = i;
+    kws[i + 0] = 'm';
+    kws[i + 1] = 'o';
+    kws[i + 2] = 'd';
+    kws[i + 3] = '\0';
+    i = i + 4;
+    kwidx[48] = TOK_FORWARD;
+    kwidx[49] = i;
+    kws[i + 0] = 'f';
+    kws[i + 1] = 'o';
+    kws[i + 2] = 'r';
+    kws[i + 3] = 'w';
+    kws[i + 4] = 'a';
+    kws[i + 5] = 'r';
+    kws[i + 6] = 'd';
+    kws[i + 7] = '\0';
+    i = i + 8;
+    kwidx[50] = -1;
+    ;
+  };
+}
+
+static void findkwd(void) {
+  long kw;
+  long curkwd;
+  long k;
+  long i;
+  long eq;
+
+  {
+    kw = 0;
+    ret = 1;
+    while ((ret * (kwidx[kw * 2] + 1)) != 0) {
+      type = kwidx[kw * 2];
+      curkwd = kwidx[kw * 2 + 1];
+      k = curkwd;
+      eq = 1;
+      i = 0;
+      while ((eq * kws[k]) != 0) {
+        if (kws[k] != token[i]) {
+          eq = 0;
+        };
+        k = k + 1;
+        i = i + 1;
+        ;
+      };
+      if (token[i] != '\0') {
+        eq = 0;
+      };
+      if (eq == 1) {
+        ret = 0;
+      };
+      kw = kw + 1;
+      ;
+    };
+    if (ret != 0) {
+      type = -1;
+    };
     ;
   };
 }
@@ -370,420 +641,8 @@ static void ident(void) {
       ;
     };
     loc = loc - 1;
-    clrstr();
+    findkwd();
     ;
-    str[0] = 'c';
-    str[1] = 'o';
-    str[2] = 'n';
-    str[3] = 's';
-    str[4] = 't';
-    cmpstr();
-    ;
-    if (ret == 0) {
-      type = TOK_CONST;
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'v';
-        str[1] = 'a';
-        str[2] = 'r';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_VAR;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'p';
-        str[1] = 'r';
-        str[2] = 'o';
-        str[3] = 'c';
-        str[4] = 'e';
-        str[5] = 'd';
-        str[6] = 'u';
-        str[7] = 'r';
-        str[8] = 'e';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_PROCEDURE;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'c';
-        str[1] = 'a';
-        str[2] = 'l';
-        str[3] = 'l';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_CALL;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'b';
-        str[1] = 'e';
-        str[2] = 'g';
-        str[3] = 'i';
-        str[4] = 'n';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_BEGIN;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'e';
-        str[1] = 'n';
-        str[2] = 'd';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_END;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'i';
-        str[1] = 'f';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_IF;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 't';
-        str[1] = 'h';
-        str[2] = 'e';
-        str[3] = 'n';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_THEN;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'e';
-        str[1] = 'l';
-        str[2] = 's';
-        str[3] = 'e';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_ELSE;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'w';
-        str[1] = 'h';
-        str[2] = 'i';
-        str[3] = 'l';
-        str[4] = 'e';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_WHILE;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'd';
-        str[1] = 'o';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_DO;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'o';
-        str[1] = 'd';
-        str[2] = 'd';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_ODD;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'w';
-        str[1] = 'r';
-        str[2] = 'i';
-        str[3] = 't';
-        str[4] = 'e';
-        str[5] = 'I';
-        str[6] = 'n';
-        str[7] = 't';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_WRITEINT;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'w';
-        str[1] = 'r';
-        str[2] = 'i';
-        str[3] = 't';
-        str[4] = 'e';
-        str[5] = 'C';
-        str[6] = 'h';
-        str[7] = 'a';
-        str[8] = 'r';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_WRITECHAR;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'w';
-        str[1] = 'r';
-        str[2] = 'i';
-        str[3] = 't';
-        str[4] = 'e';
-        str[5] = 'S';
-        str[6] = 't';
-        str[7] = 'r';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_WRITESTR;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'r';
-        str[1] = 'e';
-        str[2] = 'a';
-        str[3] = 'd';
-        str[4] = 'I';
-        str[5] = 'n';
-        str[6] = 't';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_READINT;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'r';
-        str[1] = 'e';
-        str[2] = 'a';
-        str[3] = 'd';
-        str[4] = 'C';
-        str[5] = 'h';
-        str[6] = 'a';
-        str[7] = 'r';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_READCHAR;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'i';
-        str[1] = 'n';
-        str[2] = 't';
-        str[3] = 'o';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_INTO;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 's';
-        str[1] = 'i';
-        str[2] = 'z';
-        str[3] = 'e';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_SIZE;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'e';
-        str[1] = 'x';
-        str[2] = 'i';
-        str[3] = 't';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_EXIT;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'a';
-        str[1] = 'n';
-        str[2] = 'd';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_AND;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'o';
-        str[1] = 'r';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_OR;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'n';
-        str[1] = 'o';
-        str[2] = 't';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_NOT;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'm';
-        str[1] = 'o';
-        str[2] = 'd';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_MODULO;
-        };
-        ;
-      };
-    };
-    if (ret != 0) {
-      {
-        clrstr();
-        ;
-        str[0] = 'f';
-        str[1] = 'o';
-        str[2] = 'r';
-        str[3] = 'w';
-        str[4] = 'a';
-        str[5] = 'r';
-        str[6] = 'd';
-        cmpstr();
-        ;
-        if (ret == 0) {
-          type = TOK_FORWARD;
-        };
-        ;
-      };
-    };
     if (ret != 0) {
       type = TOK_IDENT;
     };
@@ -3542,6 +3401,8 @@ int main(int argc, char *argv[]) {
   {
     line = 1;
     type = -1;
+    setup_keywords();
+    ;
     readin();
     ;
     initsymtab();
