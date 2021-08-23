@@ -65,7 +65,6 @@ static long raw[1048576];
 static long loc;
 static long symtab[1048576];
 static long symtype;
-static long errstr[35];
 static long token[256];
 static long type;
 static long str[256];
@@ -87,19 +86,6 @@ static void error(void) {
     ;
     (void)fprintf(stdout, ": ");
     ;
-    __writestridx = 0;
-    while (errstr[__writestridx] != '\0' && __writestridx < 35)
-      (void)fputc((unsigned char)errstr[__writestridx++], stdout);
-    ;
-    (void)fprintf(stdout, ": ");
-    ;
-    __writestridx = 0;
-    while (token[__writestridx] != '\0' && __writestridx < 256)
-      (void)fputc((unsigned char)token[__writestridx++], stdout);
-    ;
-    (void)fprintf(stdout, "%c", (unsigned char)('\n'));
-    ;
-    exit(1);
     ;
   };
 }
@@ -409,19 +395,11 @@ static void readin(void) {
       i = i + 1;
       if (i == 1048577) {
         {
-          errstr[0] = 'f';
-          errstr[1] = 'i';
-          errstr[2] = 'l';
-          errstr[3] = 'e';
-          errstr[4] = ' ';
-          errstr[5] = 't';
-          errstr[6] = 'o';
-          errstr[7] = 'o';
-          errstr[8] = ' ';
-          errstr[9] = 'b';
-          errstr[10] = 'i';
-          errstr[11] = 'g';
           error();
+          ;
+          (void)fprintf(stdout, "file too big\n");
+          ;
+          exit(1);
           ;
           ;
         };
@@ -439,27 +417,12 @@ static void comment(void) {
     while (raw[loc] != '}') {
       if (raw[loc] == '\0') {
         {
-          errstr[0] = 'u';
-          errstr[1] = 'n';
-          errstr[2] = 't';
-          errstr[3] = 'e';
-          errstr[4] = 'r';
-          errstr[5] = 'm';
-          errstr[6] = 'i';
-          errstr[7] = 'n';
-          errstr[8] = 'a';
-          errstr[9] = 't';
-          errstr[10] = 'e';
-          errstr[11] = 'd';
-          errstr[12] = ' ';
-          errstr[13] = 'c';
-          errstr[14] = 'o';
-          errstr[15] = 'm';
-          errstr[16] = 'm';
-          errstr[17] = 'e';
-          errstr[18] = 'n';
-          errstr[19] = 't';
           error();
+          ;
+          (void)fprintf(stdout, "unterminated comment\n");
+          ;
+          exit(1);
+          ;
           ;
         };
       } else {
@@ -496,21 +459,12 @@ static void ident(void) {
               i = i + 1;
               if (i == 256) {
                 {
-                  errstr[0] = 't';
-                  errstr[1] = 'o';
-                  errstr[2] = 'k';
-                  errstr[3] = 'e';
-                  errstr[4] = 'n';
-                  errstr[5] = ' ';
-                  errstr[6] = 't';
-                  errstr[7] = 'o';
-                  errstr[8] = 'o';
-                  errstr[9] = ' ';
-                  errstr[10] = 'l';
-                  errstr[11] = 'o';
-                  errstr[12] = 'n';
-                  errstr[13] = 'g';
                   error();
+                  ;
+                  (void)fprintf(stdout, "token too long\n");
+                  ;
+                  exit(1);
+                  ;
                   ;
                 };
               };
@@ -531,21 +485,12 @@ static void ident(void) {
                   i = i + 1;
                   if (i == 256) {
                     {
-                      errstr[0] = 't';
-                      errstr[1] = 'o';
-                      errstr[2] = 'k';
-                      errstr[3] = 'e';
-                      errstr[4] = 'n';
-                      errstr[5] = ' ';
-                      errstr[6] = 't';
-                      errstr[7] = 'o';
-                      errstr[8] = 'o';
-                      errstr[9] = ' ';
-                      errstr[10] = 'l';
-                      errstr[11] = 'o';
-                      errstr[12] = 'n';
-                      errstr[13] = 'g';
                       error();
+                      ;
+                      (void)fprintf(stdout, "token too long\n");
+                      ;
+                      exit(1);
+                      ;
                       ;
                     };
                   };
@@ -569,21 +514,12 @@ static void ident(void) {
                   i = i + 1;
                   if (i == 256) {
                     {
-                      errstr[0] = 't';
-                      errstr[1] = 'o';
-                      errstr[2] = 'k';
-                      errstr[3] = 'e';
-                      errstr[4] = 'n';
-                      errstr[5] = ' ';
-                      errstr[6] = 't';
-                      errstr[7] = 'o';
-                      errstr[8] = 'o';
-                      errstr[9] = ' ';
-                      errstr[10] = 'l';
-                      errstr[11] = 'o';
-                      errstr[12] = 'n';
-                      errstr[13] = 'g';
                       error();
+                      ;
+                      (void)fprintf(stdout, "token too long\n");
+                      ;
+                      exit(1);
+                      ;
                       ;
                     };
                   };
@@ -605,21 +541,12 @@ static void ident(void) {
               i = i + 1;
               if (i == 256) {
                 {
-                  errstr[0] = 't';
-                  errstr[1] = 'o';
-                  errstr[2] = 'k';
-                  errstr[3] = 'e';
-                  errstr[4] = 'n';
-                  errstr[5] = ' ';
-                  errstr[6] = 't';
-                  errstr[7] = 'o';
-                  errstr[8] = 'o';
-                  errstr[9] = ' ';
-                  errstr[10] = 'l';
-                  errstr[11] = 'o';
-                  errstr[12] = 'n';
-                  errstr[13] = 'g';
                   error();
+                  ;
+                  (void)fprintf(stdout, "token too long\n");
+                  ;
+                  exit(1);
+                  ;
                   ;
                 };
               };
@@ -668,21 +595,12 @@ static void number(void) {
               i = i + 1;
               if (i == 256) {
                 {
-                  errstr[0] = 't';
-                  errstr[1] = 'o';
-                  errstr[2] = 'k';
-                  errstr[3] = 'e';
-                  errstr[4] = 'n';
-                  errstr[5] = ' ';
-                  errstr[6] = 't';
-                  errstr[7] = 'o';
-                  errstr[8] = 'o';
-                  errstr[9] = ' ';
-                  errstr[10] = 'l';
-                  errstr[11] = 'o';
-                  errstr[12] = 'n';
-                  errstr[13] = 'g';
                   error();
+                  ;
+                  (void)fprintf(stdout, "token too long\n");
+                  ;
+                  exit(1);
+                  ;
                   ;
                 };
               };
@@ -746,51 +664,23 @@ static void string(void) {
       } else {
         if (raw[loc] == '\n') {
           {
-            errstr[0] = 'u';
-            errstr[1] = 'n';
-            errstr[2] = 't';
-            errstr[3] = 'e';
-            errstr[4] = 'r';
-            errstr[5] = 'm';
-            errstr[6] = 'i';
-            errstr[7] = 'n';
-            errstr[8] = 'a';
-            errstr[9] = 't';
-            errstr[10] = 'e';
-            errstr[11] = 'd';
-            errstr[12] = ' ';
-            errstr[13] = 's';
-            errstr[14] = 't';
-            errstr[15] = 'r';
-            errstr[16] = 'i';
-            errstr[17] = 'n';
-            errstr[18] = 'g';
             error();
+            ;
+            (void)fprintf(stdout, "unterminated string\n");
+            ;
+            exit(1);
+            ;
             ;
           };
         } else {
           if (raw[loc] == '\0') {
             {
-              errstr[0] = 'u';
-              errstr[1] = 'n';
-              errstr[2] = 't';
-              errstr[3] = 'e';
-              errstr[4] = 'r';
-              errstr[5] = 'm';
-              errstr[6] = 'i';
-              errstr[7] = 'n';
-              errstr[8] = 'a';
-              errstr[9] = 't';
-              errstr[10] = 'e';
-              errstr[11] = 'd';
-              errstr[12] = ' ';
-              errstr[13] = 's';
-              errstr[14] = 't';
-              errstr[15] = 'r';
-              errstr[16] = 'i';
-              errstr[17] = 'n';
-              errstr[18] = 'g';
               error();
+              ;
+              (void)fprintf(stdout, "unterminated string\n");
+              ;
+              exit(1);
+              ;
               ;
             };
           } else {
@@ -803,22 +693,12 @@ static void string(void) {
       };
       if (i > 256) {
         {
-          errstr[0] = 's';
-          errstr[1] = 't';
-          errstr[2] = 'r';
-          errstr[3] = 'i';
-          errstr[4] = 'n';
-          errstr[5] = 'g';
-          errstr[6] = ' ';
-          errstr[7] = 't';
-          errstr[8] = 'o';
-          errstr[9] = 'o';
-          errstr[10] = ' ';
-          errstr[11] = 'l';
-          errstr[12] = 'o';
-          errstr[13] = 'n';
-          errstr[14] = 'g';
           error();
+          ;
+          (void)fprintf(stdout, "string too long\n");
+          ;
+          exit(1);
+          ;
           ;
         };
       };
@@ -1044,26 +924,21 @@ static void lex(void) {
                                                   loc = loc + 1;
                                                   if (raw[loc] != '=') {
                                                     {
-                                                      errstr[0] = 'u';
-                                                      errstr[1] = 'n';
-                                                      errstr[2] = 'k';
-                                                      errstr[3] = 'n';
-                                                      errstr[4] = 'o';
-                                                      errstr[5] = 'w';
-                                                      errstr[6] = 'n';
-                                                      errstr[7] = ' ';
-                                                      errstr[8] = 't';
-                                                      errstr[9] = 'o';
-                                                      errstr[10] = 'k';
-                                                      errstr[11] = 'e';
-                                                      errstr[12] = 'n';
-                                                      errstr[13] = ':';
-                                                      errstr[14] = ' ';
-                                                      errstr[15] = '\'';
-                                                      errstr[16] = ':';
-                                                      errstr[17] = raw[loc];
-                                                      errstr[18] = '\'';
                                                       error();
+                                                      ;
+                                                      (void)fprintf(
+                                                          stdout,
+                                                          "unknown token: \'");
+                                                      ;
+                                                      (void)fprintf(
+                                                          stdout, "%c",
+                                                          (unsigned char)(raw[loc]));
+                                                      ;
+                                                      (void)fprintf(stdout,
+                                                                    "\'\n");
+                                                      ;
+                                                      exit(1);
+                                                      ;
                                                       ;
                                                     };
                                                   };
@@ -1082,25 +957,21 @@ static void lex(void) {
                                                     type = 0;
                                                   } else {
                                                     {
-                                                      errstr[0] = 'u';
-                                                      errstr[1] = 'n';
-                                                      errstr[2] = 'k';
-                                                      errstr[3] = 'n';
-                                                      errstr[4] = 'o';
-                                                      errstr[5] = 'w';
-                                                      errstr[6] = 'n';
-                                                      errstr[7] = ' ';
-                                                      errstr[8] = 't';
-                                                      errstr[9] = 'o';
-                                                      errstr[10] = 'k';
-                                                      errstr[11] = 'e';
-                                                      errstr[12] = 'n';
-                                                      errstr[13] = ':';
-                                                      errstr[14] = ' ';
-                                                      errstr[15] = '\'';
-                                                      errstr[16] = raw[loc];
-                                                      errstr[17] = '\'';
                                                       error();
+                                                      ;
+                                                      (void)fprintf(
+                                                          stdout,
+                                                          "unknown token: \'");
+                                                      ;
+                                                      (void)fprintf(
+                                                          stdout, "%c",
+                                                          (unsigned char)(raw[loc]));
+                                                      ;
+                                                      (void)fprintf(stdout,
+                                                                    "\'\n");
+                                                      ;
+                                                      exit(1);
+                                                      ;
                                                       ;
                                                     };
                                                   };
@@ -1516,55 +1387,29 @@ static void cg_writestr(void) {
         };
         if (save == 0) {
           {
-            errstr[0] = 'u';
-            errstr[1] = 'n';
-            errstr[2] = 'd';
-            errstr[3] = 'e';
-            errstr[4] = 'f';
-            errstr[5] = 'i';
-            errstr[6] = 'n';
-            errstr[7] = 'e';
-            errstr[8] = 'd';
-            errstr[9] = ' ';
-            errstr[10] = 's';
-            errstr[11] = 'y';
-            errstr[12] = 'm';
-            errstr[13] = 'b';
-            errstr[14] = 'o';
-            errstr[15] = 'l';
             error();
+            ;
+            (void)fprintf(stdout, "undefined symbol: \'");
+            ;
+            __writestridx = 0;
+            while (token[__writestridx] != '\0' && __writestridx < 256)
+              (void)fputc((unsigned char)token[__writestridx++], stdout);
+            ;
+            (void)fprintf(stdout, "\'\n");
+            ;
+            exit(1);
+            ;
             ;
           };
         };
         if (symtab[save + 34] == 0) {
           {
-            errstr[0] = 'w';
-            errstr[1] = 'r';
-            errstr[2] = 'i';
-            errstr[3] = 't';
-            errstr[4] = 'e';
-            errstr[5] = 'S';
-            errstr[6] = 't';
-            errstr[7] = 'r';
-            errstr[8] = ' ';
-            errstr[9] = 'r';
-            errstr[10] = 'e';
-            errstr[11] = 'q';
-            errstr[12] = 'u';
-            errstr[13] = 'i';
-            errstr[14] = 'r';
-            errstr[15] = 'e';
-            errstr[16] = 's';
-            errstr[17] = ' ';
-            errstr[18] = 'a';
-            errstr[19] = 'n';
-            errstr[20] = ' ';
-            errstr[21] = 'a';
-            errstr[22] = 'r';
-            errstr[23] = 'r';
-            errstr[24] = 'a';
-            errstr[25] = 'y';
             error();
+            ;
+            (void)fprintf(stdout, "writeStr requires an array\n");
+            ;
+            exit(1);
+            ;
             ;
           };
         };
@@ -1620,19 +1465,12 @@ static void next(void) {
 
 static void syntax(void) {
   {
-    errstr[0] = 's';
-    errstr[1] = 'y';
-    errstr[2] = 'n';
-    errstr[3] = 't';
-    errstr[4] = 'a';
-    errstr[5] = 'x';
-    errstr[6] = ' ';
-    errstr[7] = 'e';
-    errstr[8] = 'r';
-    errstr[9] = 'r';
-    errstr[10] = 'o';
-    errstr[11] = 'r';
     error();
+    ;
+    (void)fprintf(stdout, "syntax error\n");
+    ;
+    exit(1);
+    ;
     ;
   };
 }
@@ -2053,29 +1891,12 @@ static void addsymbol(void) {
     symtabcnt = symtabcnt + 1;
     if (symtabcnt == 29961) {
       {
-        errstr[0] = 's';
-        errstr[1] = 'y';
-        errstr[2] = 'm';
-        errstr[3] = 'b';
-        errstr[4] = 'o';
-        errstr[5] = 'l';
-        errstr[6] = ' ';
-        errstr[7] = 't';
-        errstr[8] = 'a';
-        errstr[9] = 'b';
-        errstr[10] = 'l';
-        errstr[11] = 'e';
-        errstr[12] = ' ';
-        errstr[13] = 'e';
-        errstr[14] = 'x';
-        errstr[15] = 'h';
-        errstr[16] = 'a';
-        errstr[17] = 'u';
-        errstr[18] = 's';
-        errstr[19] = 't';
-        errstr[20] = 'e';
-        errstr[21] = 'd';
         error();
+        ;
+        (void)fprintf(stdout, "symbol table exhausted\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
@@ -2111,41 +1932,35 @@ static void arraycheck(void) {
     };
     if (save == 0) {
       {
-        errstr[0] = 'u';
-        errstr[1] = 'n';
-        errstr[2] = 'd';
-        errstr[3] = 'e';
-        errstr[4] = 'f';
-        errstr[5] = 'i';
-        errstr[6] = 'n';
-        errstr[7] = 'e';
-        errstr[8] = 'd';
-        errstr[9] = ' ';
-        errstr[10] = 's';
-        errstr[11] = 'y';
-        errstr[12] = 'm';
-        errstr[13] = 'b';
-        errstr[14] = 'o';
-        errstr[15] = 'l';
         error();
+        ;
+        (void)fprintf(stdout, "undefined symbol: \'");
+        ;
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+        (void)fprintf(stdout, "\'\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
     if (symtab[save + 34] == 0) {
       {
-        errstr[0] = 'n';
-        errstr[1] = 'o';
-        errstr[2] = 't';
-        errstr[3] = ' ';
-        errstr[4] = 'a';
-        errstr[5] = 'n';
-        errstr[6] = ' ';
-        errstr[7] = 'a';
-        errstr[8] = 'r';
-        errstr[9] = 'r';
-        errstr[10] = 'a';
-        errstr[11] = 'y';
         error();
+        ;
+        (void)fprintf(stdout, "not an array: \'");
+        ;
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+        (void)fprintf(stdout, "\'\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
@@ -2161,66 +1976,36 @@ static void arraysize(void) {
     i = 35 * (symtabcnt - 1);
     if (symtab[i + 32] != TOK_VAR) {
       {
-        errstr[0] = 'a';
-        errstr[1] = 'r';
-        errstr[2] = 'r';
-        errstr[3] = 'a';
-        errstr[4] = 'y';
-        errstr[5] = 's';
-        errstr[6] = ' ';
-        errstr[7] = 'm';
-        errstr[8] = 'u';
-        errstr[9] = 's';
-        errstr[10] = 't';
-        errstr[11] = ' ';
-        errstr[12] = 'b';
-        errstr[13] = 'e';
-        errstr[14] = ' ';
-        errstr[15] = 'd';
-        errstr[16] = 'e';
-        errstr[17] = 'c';
-        errstr[18] = 'l';
-        errstr[19] = 'a';
-        errstr[20] = 'r';
-        errstr[21] = 'e';
-        errstr[22] = 'd';
-        errstr[23] = ' ';
-        errstr[24] = 'w';
-        errstr[25] = 'i';
-        errstr[26] = 't';
-        errstr[27] = 'h';
-        errstr[28] = ' ';
-        errstr[29] = '"';
-        errstr[30] = 'v';
-        errstr[31] = 'a';
-        errstr[32] = 'r';
-        errstr[33] = '"';
         error();
+        ;
+        (void)fprintf(stdout, "arrays must be declared with \"var\": \'");
+        ;
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+        (void)fprintf(stdout, "\'\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
     symtab[i + 34] = value;
     if (value < 1) {
       {
-        errstr[0] = 'i';
-        errstr[1] = 'n';
-        errstr[2] = 'v';
-        errstr[3] = 'a';
-        errstr[4] = 'l';
-        errstr[5] = 'i';
-        errstr[6] = 'd';
-        errstr[7] = ' ';
-        errstr[8] = 'a';
-        errstr[9] = 'r';
-        errstr[10] = 'r';
-        errstr[11] = 'a';
-        errstr[12] = 'y';
-        errstr[13] = ' ';
-        errstr[14] = 's';
-        errstr[15] = 'i';
-        errstr[16] = 'z';
-        errstr[17] = 'e';
         error();
+        ;
+        (void)fprintf(stdout, "invalid array size: \'");
+        ;
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+        (void)fprintf(stdout, "\'\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
@@ -2278,23 +2063,18 @@ static void symcheck(void) {
     };
     if (save == 0) {
       {
-        errstr[0] = 'u';
-        errstr[1] = 'n';
-        errstr[2] = 'd';
-        errstr[3] = 'e';
-        errstr[4] = 'f';
-        errstr[5] = 'i';
-        errstr[6] = 'n';
-        errstr[7] = 'e';
-        errstr[8] = 'd';
-        errstr[9] = ' ';
-        errstr[10] = 's';
-        errstr[11] = 'y';
-        errstr[12] = 'm';
-        errstr[13] = 'b';
-        errstr[14] = 'o';
-        errstr[15] = 'l';
         error();
+        ;
+        (void)fprintf(stdout, "undefined symbol: \'");
+        ;
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+        (void)fprintf(stdout, "\'\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
@@ -2302,25 +2082,18 @@ static void symcheck(void) {
       {
         if (symtab[save + 32] != TOK_VAR) {
           {
-            errstr[0] = 'm';
-            errstr[1] = 'u';
-            errstr[2] = 's';
-            errstr[3] = 't';
-            errstr[4] = ' ';
-            errstr[5] = 'b';
-            errstr[6] = 'e';
-            errstr[7] = ' ';
-            errstr[8] = 'a';
-            errstr[9] = ' ';
-            errstr[10] = 'v';
-            errstr[11] = 'a';
-            errstr[12] = 'r';
-            errstr[13] = 'i';
-            errstr[14] = 'a';
-            errstr[15] = 'b';
-            errstr[16] = 'l';
-            errstr[17] = 'e';
             error();
+            ;
+            (void)fprintf(stdout, "must be a variable: \'");
+            ;
+            __writestridx = 0;
+            while (token[__writestridx] != '\0' && __writestridx < 256)
+              (void)fputc((unsigned char)token[__writestridx++], stdout);
+            ;
+            (void)fprintf(stdout, "\'\n");
+            ;
+            exit(1);
+            ;
             ;
           };
         };
@@ -2331,59 +2104,35 @@ static void symcheck(void) {
         {
           if (symtab[save + 32] == TOK_PROCEDURE) {
             {
-              errstr[0] = 'm';
-              errstr[1] = 'u';
-              errstr[2] = 's';
-              errstr[3] = 't';
-              errstr[4] = ' ';
-              errstr[5] = 'n';
-              errstr[6] = 'o';
-              errstr[7] = 't';
-              errstr[8] = ' ';
-              errstr[9] = 'b';
-              errstr[10] = 'e';
-              errstr[11] = ' ';
-              errstr[12] = 'a';
-              errstr[13] = ' ';
-              errstr[14] = 'p';
-              errstr[15] = 'r';
-              errstr[16] = 'o';
-              errstr[17] = 'c';
-              errstr[18] = 'e';
-              errstr[19] = 'd';
-              errstr[20] = 'u';
-              errstr[21] = 'r';
-              errstr[22] = 'e';
               error();
+              ;
+              (void)fprintf(stdout, "must not be a procedure: \'");
+              ;
+              __writestridx = 0;
+              while (token[__writestridx] != '\0' && __writestridx < 256)
+                (void)fputc((unsigned char)token[__writestridx++], stdout);
+              ;
+              (void)fprintf(stdout, "\'\n");
+              ;
+              exit(1);
+              ;
               ;
             };
           } else {
             if (symtab[save + 32] == TOK_FORWARD) {
               {
-                errstr[0] = 'm';
-                errstr[1] = 'u';
-                errstr[2] = 's';
-                errstr[3] = 't';
-                errstr[4] = ' ';
-                errstr[5] = 'n';
-                errstr[6] = 'o';
-                errstr[7] = 't';
-                errstr[8] = ' ';
-                errstr[9] = 'b';
-                errstr[10] = 'e';
-                errstr[11] = ' ';
-                errstr[12] = 'a';
-                errstr[13] = ' ';
-                errstr[14] = 'p';
-                errstr[15] = 'r';
-                errstr[16] = 'o';
-                errstr[17] = 'c';
-                errstr[18] = 'e';
-                errstr[19] = 'd';
-                errstr[20] = 'u';
-                errstr[21] = 'r';
-                errstr[22] = 'e';
                 error();
+                ;
+                (void)fprintf(stdout, "must not be a procedure: \'");
+                ;
+                __writestridx = 0;
+                while (token[__writestridx] != '\0' && __writestridx < 256)
+                  (void)fputc((unsigned char)token[__writestridx++], stdout);
+                ;
+                (void)fprintf(stdout, "\'\n");
+                ;
+                exit(1);
+                ;
                 ;
               };
             };
@@ -2397,26 +2146,19 @@ static void symcheck(void) {
               {
                 if (symtab[save + 32] != TOK_FORWARD) {
                   {
-                    errstr[0] = 'm';
-                    errstr[1] = 'u';
-                    errstr[2] = 's';
-                    errstr[3] = 't';
-                    errstr[4] = ' ';
-                    errstr[5] = 'b';
-                    errstr[6] = 'e';
-                    errstr[7] = ' ';
-                    errstr[8] = 'a';
-                    errstr[9] = ' ';
-                    errstr[10] = 'p';
-                    errstr[11] = 'r';
-                    errstr[12] = 'o';
-                    errstr[13] = 'c';
-                    errstr[14] = 'e';
-                    errstr[15] = 'd';
-                    errstr[16] = 'u';
-                    errstr[17] = 'r';
-                    errstr[18] = 'e';
                     error();
+                    ;
+                    (void)fprintf(stdout, "must be a procedure: \'");
+                    ;
+                    __writestridx = 0;
+                    while (token[__writestridx] != '\0' && __writestridx < 256)
+                      (void)fputc((unsigned char)token[__writestridx++],
+                                  stdout);
+                    ;
+                    (void)fprintf(stdout, "\'\n");
+                    ;
+                    exit(1);
+                    ;
                     ;
                   };
                 };
@@ -2724,26 +2466,20 @@ static void condition(void) {
                     };
                   } else {
                     {
-                      errstr[0] = 'i';
-                      errstr[1] = 'n';
-                      errstr[2] = 'v';
-                      errstr[3] = 'a';
-                      errstr[4] = 'l';
-                      errstr[5] = 'i';
-                      errstr[6] = 'd';
-                      errstr[7] = ' ';
-                      errstr[8] = 'c';
-                      errstr[9] = 'o';
-                      errstr[10] = 'n';
-                      errstr[11] = 'd';
-                      errstr[12] = 'i';
-                      errstr[13] = 't';
-                      errstr[14] = 'i';
-                      errstr[15] = 'o';
-                      errstr[16] = 'n';
-                      errstr[17] = 'a';
-                      errstr[18] = 'l';
                       error();
+                      ;
+                      (void)fprintf(stdout, "invalid conditional: \'");
+                      ;
+                      __writestridx = 0;
+                      while (token[__writestridx] != '\0' &&
+                             __writestridx < 256)
+                        (void)fputc((unsigned char)token[__writestridx++],
+                                    stdout);
+                      ;
+                      (void)fprintf(stdout, "\'\n");
+                      ;
+                      exit(1);
+                      ;
                       ;
                     };
                   };
@@ -2967,42 +2703,22 @@ static void statement(void) {
                           };
                         } else {
                           {
-                            errstr[0] = 'w';
-                            errstr[1] = 'r';
-                            errstr[2] = 'i';
-                            errstr[3] = 't';
-                            errstr[4] = 'e';
-                            errstr[5] = 'S';
-                            errstr[6] = 't';
-                            errstr[7] = 'r';
-                            errstr[8] = ' ';
-                            errstr[9] = 't';
-                            errstr[10] = 'a';
-                            errstr[11] = 'k';
-                            errstr[12] = 'e';
-                            errstr[13] = 's';
-                            errstr[14] = ' ';
-                            errstr[15] = 'a';
-                            errstr[16] = 'n';
-                            errstr[17] = ' ';
-                            errstr[18] = 'a';
-                            errstr[19] = 'r';
-                            errstr[20] = 'r';
-                            errstr[21] = 'a';
-                            errstr[22] = 'y';
-                            errstr[23] = ' ';
-                            errstr[24] = 'o';
-                            errstr[25] = 'r';
-                            errstr[26] = ' ';
-                            errstr[27] = 'a';
-                            errstr[28] = ' ';
-                            errstr[29] = 's';
-                            errstr[30] = 't';
-                            errstr[31] = 'r';
-                            errstr[32] = 'i';
-                            errstr[33] = 'n';
-                            errstr[34] = 'g';
                             error();
+                            ;
+                            (void)fprintf(
+                                stdout,
+                                "writeStr takes an array or a string: \'");
+                            ;
+                            __writestridx = 0;
+                            while (token[__writestridx] != '\0' &&
+                                   __writestridx < 256)
+                              (void)fputc((unsigned char)token[__writestridx++],
+                                          stdout);
+                            ;
+                            (void)fprintf(stdout, "\'\n");
+                            ;
+                            exit(1);
+                            ;
                             ;
                           };
                         };
@@ -3086,29 +2802,12 @@ static void block(void) {
   {
     if (depth > 1) {
       {
-        errstr[0] = 'n';
-        errstr[1] = 'e';
-        errstr[2] = 's';
-        errstr[3] = 't';
-        errstr[4] = 'i';
-        errstr[5] = 'n';
-        errstr[6] = 'g';
-        errstr[7] = ' ';
-        errstr[8] = 'd';
-        errstr[9] = 'e';
-        errstr[10] = 'p';
-        errstr[11] = 't';
-        errstr[12] = 'h';
-        errstr[13] = ' ';
-        errstr[14] = 'e';
-        errstr[15] = 'x';
-        errstr[16] = 'c';
-        errstr[17] = 'e';
-        errstr[18] = 'e';
-        errstr[19] = 'd';
-        errstr[20] = 'e';
-        errstr[21] = 'd';
         error();
+        ;
+        (void)fprintf(stdout, "nesting depth exceeded\n");
+        ;
+        exit(1);
+        ;
         ;
       };
     };
@@ -3306,33 +3005,11 @@ static void block(void) {
     depth = depth - 1;
     if (depth < 0) {
       {
-        errstr[0] = 'n';
-        errstr[1] = 'e';
-        errstr[2] = 's';
-        errstr[3] = 't';
-        errstr[4] = 'i';
-        errstr[5] = 'n';
-        errstr[6] = 'g';
-        errstr[7] = ' ';
-        errstr[8] = 'd';
-        errstr[9] = 'e';
-        errstr[10] = 'p';
-        errstr[11] = 't';
-        errstr[12] = 'h';
-        errstr[13] = ' ';
-        errstr[14] = 'f';
-        errstr[15] = 'e';
-        errstr[16] = 'l';
-        errstr[17] = 'l';
-        errstr[18] = ' ';
-        errstr[19] = 'b';
-        errstr[20] = 'e';
-        errstr[21] = 'l';
-        errstr[22] = 'o';
-        errstr[23] = 'w';
-        errstr[24] = ' ';
-        errstr[25] = '0';
         error();
+        ;
+        (void)fprintf(stdout, "nesting depth fell below 0\n");
+        ;
+        exit(1);
         ;
         ;
       };
@@ -3353,34 +3030,17 @@ static void parse(void) {
     ;
     if (type != 0) {
       {
-        errstr[0] = 'e';
-        errstr[1] = 'x';
-        errstr[2] = 't';
-        errstr[3] = 'r';
-        errstr[4] = 'a';
-        errstr[5] = ' ';
-        errstr[6] = 't';
-        errstr[7] = 'o';
-        errstr[8] = 'k';
-        errstr[9] = 'e';
-        errstr[10] = 'n';
-        errstr[11] = 's';
-        errstr[12] = ' ';
-        errstr[13] = 'a';
-        errstr[14] = 't';
-        errstr[15] = ' ';
-        errstr[16] = 'e';
-        errstr[17] = 'n';
-        errstr[18] = 'd';
-        errstr[19] = ' ';
-        errstr[20] = 'o';
-        errstr[21] = 'f';
-        errstr[22] = ' ';
-        errstr[23] = 'f';
-        errstr[24] = 'i';
-        errstr[25] = 'l';
-        errstr[26] = 'e';
         error();
+        ;
+        (void)fprintf(stdout, "extra tokens at end of file: \'");
+        ;
+        __writestridx = 0;
+        while (token[__writestridx] != '\0' && __writestridx < 256)
+          (void)fputc((unsigned char)token[__writestridx++], stdout);
+        ;
+        (void)fprintf(stdout, "\'\n");
+        ;
+        exit(1);
         ;
         ;
       };
