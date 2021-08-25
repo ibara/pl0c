@@ -78,6 +78,8 @@ var
   symtype, { For addsymbol }
   token size 256, { 255 characters + '\0' }
   type, { token type }
+  expectedtype, { expected token type }
+  typetoprint, { For printtype }
   str size 256, { For cmpstr }
   symtabcnt, { To keep track of number of symtab entries }
   ret, { Return code for procedures that need one }
@@ -95,7 +97,7 @@ forward expression;
 
 procedure error;
 begin
-  writeStr 'pl0c: error: ';
+  writeStr '\npl0c: error: ';
   writeInt line;
   writeStr ': ';
 end;
@@ -1076,275 +1078,276 @@ begin
     call lex;
 end;
 
-procedure syntax;
+procedure printtype;
+  var kw, i, c, loop;
 begin
-  call error;
-  writeStr 'syntax error\n';
-  exit 1;
+  if typetoprint = TOK_IDENT then
+    writeStr 'an identifier'
+  else if typetoprint = TOK_NUMBER then
+    writeStr 'a number'
+  else if typetoprint =  TOK_STRING then
+    writeStr 'a string'
+  else if typetoprint = TOK_ASSIGN then
+    writeStr ' '':='' '
+  else if typetoprint = TOK_HASH then
+    writeStr ' ''#'' or ''<>'' '
+  else if typetoprint = TOK_LTHANE then
+    writeStr ' ''<='' '
+  else if typetoprint = TOK_GTHANE then
+    writeStr ' ''>='' '
+  else if typetoprint = TOK_MODULO then
+  begin
+    writeStr ' ''';
+    writeChar '%';
+    writeStr ''' or ''mod'' ';
+  end
+  else
+  begin
+    kw := 0;
+    loop := 1;
+    { while loop # 0 and keywordidx[kw * 2] # -1 }
+    while (loop * (keywordidx[kw * 2] + 1)) <> 0 do
+    begin
+      if typetoprint = keywordidx[kw * 2] then
+      begin
+        loop := 0;
+      end;
+      kw := kw + 1;
+    end;
+
+    if loop = 0 then
+    begin
+      i := keywordidx[kw * 2 + 1];
+      c := keywords[i];
+      while c <> '\0' do
+      begin
+        writeChar c;
+        i := i + 1;
+        c := keywords[i];
+      end;
+    end
+    else
+    begin
+      writeStr ' ''';
+      writeChar typetoprint;
+      writeStr ''' ';
+    end;
+  end;
+end;
+
+procedure expect;
+begin
+  if type # expectedtype then
+  begin
+    call error;
+    writeStr 'syntax error: expected ';
+    typetoprint := expectedtype;
+    call printtype;
+    writeStr ' but got ';
+    typetoprint := type;
+    call printtype;
+    writeChar '\n';
+    exit 1;
+  end;
+  call next;
 end;
 
 procedure expect_begin;
 begin
-  if type # TOK_BEGIN then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_BEGIN;
+  call expect;
 end;
 
 procedure expect_call;
 begin
-  if type # TOK_CALL then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_CALL;
+  call expect;
 end;
 
 procedure expect_const;
 begin
-  if type # TOK_CONST then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_CONST;
+  call expect;
 end;
 
 procedure expect_do;
 begin
-  if type # TOK_DO then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_DO;
+  call expect;
 end;
 
 procedure expect_else;
 begin
-  if type # TOK_ELSE then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_ELSE;
+  call expect;
 end;
 
 procedure expect_end;
 begin
-  if type # TOK_END then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_END;
+  call expect;
 end;
 
 procedure expect_exit;
 begin
-  if type # TOK_EXIT then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_EXIT;
+  call expect;
 end;
 
 procedure expect_forward;
 begin
-  if type # TOK_FORWARD then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_FORWARD;
+  call expect;
 end;
 
 procedure expect_ident;
 begin
-  if type # TOK_IDENT then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_IDENT;
+  call expect;
 end;
 
 procedure expect_if;
 begin
-  if type # TOK_IF then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_IF;
+  call expect;
 end;
 
 procedure expect_into;
 begin
-  if type # TOK_INTO then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_INTO;
+  call expect;
 end;
 
 procedure expect_number;
 begin
-  if type # TOK_NUMBER then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_NUMBER;
+  call expect;
 end;
 
 procedure expect_odd;
 begin
-  if type # TOK_ODD then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_ODD;
+  call expect;
 end;
 
 procedure expect_procedure;
 begin
-  if type # TOK_PROCEDURE then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_PROCEDURE;
+  call expect;
 end;
 
 procedure expect_readchar;
 begin
-  if type # TOK_READCHAR then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_READCHAR;
+  call expect;
 end;
 
 procedure expect_readint;
 begin
-  if type # TOK_READINT then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_READINT;
+  call expect;
 end;
 
 procedure expect_size;
 begin
-  if type # TOK_SIZE then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_SIZE;
+  call expect;
 end;
 
 procedure expect_string;
 begin
-  if type # TOK_STRING then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_STRING;
+  call expect;
 end;
 
 procedure expect_then;
 begin
-  if type # TOK_THEN then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_THEN;
+  call expect;
 end;
 
 procedure expect_var;
 begin
-  if type # TOK_VAR then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_VAR;
+  call expect;
 end;
 
 procedure expect_while;
 begin
-  if type # TOK_WHILE then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_WHILE;
+  call expect;
 end;
 
 procedure expect_writechar;
 begin
-  if type # TOK_WRITECHAR then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_WRITECHAR;
+  call expect;
 end;
 
 procedure expect_writeint;
 begin
-  if type # TOK_WRITEINT then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_WRITEINT;
+  call expect;
 end;
 
 procedure expect_writestr;
 begin
-  if type # TOK_WRITESTR then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_WRITESTR;
+  call expect;
 end;
 
 procedure assign;
 begin
-  if type # TOK_ASSIGN then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_ASSIGN;
+  call expect;
 end;
 
 procedure comma;
 begin
-  if type # TOK_COMMA then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_COMMA;
+  call expect;
 end;
 
 procedure dot;
 begin
-  if type # TOK_DOT then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_DOT;
+  call expect;
 end;
 
 procedure equal;
 begin
-  if type # TOK_EQUAL then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_EQUAL;
+  call expect;
 end;
 
 procedure lbrack;
 begin
-  if type # TOK_LBRACK then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_LBRACK;
+  call expect;
 end;
 
 procedure lparen;
 begin
-  if type # TOK_LPAREN then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_LPAREN;
+  call expect;
 end;
 
 procedure rbrack;
 begin
-  if type # TOK_RBRACK then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_RBRACK;
+  call expect;
 end;
 
 procedure rparen;
 begin
-  if type # TOK_RPAREN then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_RPAREN;
+  call expect;
 end;
 
 procedure semicolon;
 begin
-  if type # TOK_SEMICOLON then
-    call syntax;
-
-  call next;
+  expectedtype := TOK_SEMICOLON;
+  call expect;
 end;
 
 procedure addsymbol;

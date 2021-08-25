@@ -67,6 +67,8 @@ static long symtab[1048576];
 static long symtype;
 static long token[256];
 static long type;
+static long expectedtype;
+static long typetoprint;
 static long str[256];
 static long symtabcnt;
 static long ret;
@@ -1430,13 +1432,128 @@ static void next(void) {
   };
 }
 
-static void syntax(void) {
+static void printtype(void) {
+  long kw;
+  long i;
+  long c;
+  long loop;
+
   {
-    error();
+    if (typetoprint == TOK_IDENT) {
+      (void)fprintf(stdout, "an identifier");
+      ;
+    } else {
+      if (typetoprint == TOK_NUMBER) {
+        (void)fprintf(stdout, "a number");
+        ;
+      } else {
+        if (typetoprint == TOK_STRING) {
+          (void)fprintf(stdout, "a string");
+          ;
+        } else {
+          if (typetoprint == TOK_ASSIGN) {
+            (void)fprintf(stdout, " \':=\' ");
+            ;
+          } else {
+            if (typetoprint == TOK_HASH) {
+              (void)fprintf(stdout, " \'#\' or \'<>\' ");
+              ;
+            } else {
+              if (typetoprint == TOK_LTHANE) {
+                (void)fprintf(stdout, " \'<=\' ");
+                ;
+              } else {
+                if (typetoprint == TOK_GTHANE) {
+                  (void)fprintf(stdout, " \'>=\' ");
+                  ;
+                } else {
+                  if (typetoprint == TOK_MODULO) {
+                    {
+                      (void)fprintf(stdout, " \'");
+                      ;
+                      (void)fprintf(stdout, "%c", (unsigned char)('%'));
+                      ;
+                      (void)fprintf(stdout, "\' or \'mod\' ");
+                      ;
+                      ;
+                    };
+                  } else {
+                    {
+                      kw = 0;
+                      loop = 1;
+                      while ((loop * (keywordidx[kw * 2] + 1)) != 0) {
+                        if (typetoprint == keywordidx[kw * 2]) {
+                          {
+                            loop = 0;
+                            ;
+                          };
+                        };
+                        kw = kw + 1;
+                        ;
+                      };
+                      if (loop == 0) {
+                        {
+                          i = keywordidx[kw * 2 + 1];
+                          c = keywords[i];
+                          while (c != '\0') {
+                            (void)fprintf(stdout, "%c", (unsigned char)(c));
+                            ;
+                            i = i + 1;
+                            c = keywords[i];
+                            ;
+                          };
+                          ;
+                        };
+                      } else {
+                        {
+                          (void)fprintf(stdout, " \'");
+                          ;
+                          (void)fprintf(stdout, "%c",
+                                        (unsigned char)(typetoprint));
+                          ;
+                          (void)fprintf(stdout, "\' ");
+                          ;
+                          ;
+                        };
+                      };
+                      ;
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
     ;
-    (void)fprintf(stdout, "syntax error\n");
-    ;
-    exit(1);
+  };
+}
+
+static void expect(void) {
+  {
+    if (type != expectedtype) {
+      {
+        error();
+        ;
+        (void)fprintf(stdout, "syntax error: expected ");
+        ;
+        typetoprint = expectedtype;
+        printtype();
+        ;
+        (void)fprintf(stdout, " but got ");
+        ;
+        typetoprint = type;
+        printtype();
+        ;
+        (void)fprintf(stdout, "%c", (unsigned char)('\n'));
+        ;
+        exit(1);
+        ;
+        ;
+      };
+    };
+    next();
     ;
     ;
   };
@@ -1444,11 +1561,8 @@ static void syntax(void) {
 
 static void expect_begin(void) {
   {
-    if (type != TOK_BEGIN) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_BEGIN;
+    expect();
     ;
     ;
   };
@@ -1456,11 +1570,8 @@ static void expect_begin(void) {
 
 static void expect_call(void) {
   {
-    if (type != TOK_CALL) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_CALL;
+    expect();
     ;
     ;
   };
@@ -1468,11 +1579,8 @@ static void expect_call(void) {
 
 static void expect_const(void) {
   {
-    if (type != TOK_CONST) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_CONST;
+    expect();
     ;
     ;
   };
@@ -1480,11 +1588,8 @@ static void expect_const(void) {
 
 static void expect_do(void) {
   {
-    if (type != TOK_DO) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_DO;
+    expect();
     ;
     ;
   };
@@ -1492,11 +1597,8 @@ static void expect_do(void) {
 
 static void expect_else(void) {
   {
-    if (type != TOK_ELSE) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_ELSE;
+    expect();
     ;
     ;
   };
@@ -1504,11 +1606,8 @@ static void expect_else(void) {
 
 static void expect_end(void) {
   {
-    if (type != TOK_END) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_END;
+    expect();
     ;
     ;
   };
@@ -1516,11 +1615,8 @@ static void expect_end(void) {
 
 static void expect_exit(void) {
   {
-    if (type != TOK_EXIT) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_EXIT;
+    expect();
     ;
     ;
   };
@@ -1528,11 +1624,8 @@ static void expect_exit(void) {
 
 static void expect_forward(void) {
   {
-    if (type != TOK_FORWARD) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_FORWARD;
+    expect();
     ;
     ;
   };
@@ -1540,11 +1633,8 @@ static void expect_forward(void) {
 
 static void expect_ident(void) {
   {
-    if (type != TOK_IDENT) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_IDENT;
+    expect();
     ;
     ;
   };
@@ -1552,11 +1642,8 @@ static void expect_ident(void) {
 
 static void expect_if(void) {
   {
-    if (type != TOK_IF) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_IF;
+    expect();
     ;
     ;
   };
@@ -1564,11 +1651,8 @@ static void expect_if(void) {
 
 static void expect_into(void) {
   {
-    if (type != TOK_INTO) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_INTO;
+    expect();
     ;
     ;
   };
@@ -1576,11 +1660,8 @@ static void expect_into(void) {
 
 static void expect_number(void) {
   {
-    if (type != TOK_NUMBER) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_NUMBER;
+    expect();
     ;
     ;
   };
@@ -1588,11 +1669,8 @@ static void expect_number(void) {
 
 static void expect_odd(void) {
   {
-    if (type != TOK_ODD) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_ODD;
+    expect();
     ;
     ;
   };
@@ -1600,11 +1678,8 @@ static void expect_odd(void) {
 
 static void expect_procedure(void) {
   {
-    if (type != TOK_PROCEDURE) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_PROCEDURE;
+    expect();
     ;
     ;
   };
@@ -1612,11 +1687,8 @@ static void expect_procedure(void) {
 
 static void expect_readchar(void) {
   {
-    if (type != TOK_READCHAR) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_READCHAR;
+    expect();
     ;
     ;
   };
@@ -1624,11 +1696,8 @@ static void expect_readchar(void) {
 
 static void expect_readint(void) {
   {
-    if (type != TOK_READINT) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_READINT;
+    expect();
     ;
     ;
   };
@@ -1636,11 +1705,8 @@ static void expect_readint(void) {
 
 static void expect_size(void) {
   {
-    if (type != TOK_SIZE) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_SIZE;
+    expect();
     ;
     ;
   };
@@ -1648,11 +1714,8 @@ static void expect_size(void) {
 
 static void expect_string(void) {
   {
-    if (type != TOK_STRING) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_STRING;
+    expect();
     ;
     ;
   };
@@ -1660,11 +1723,8 @@ static void expect_string(void) {
 
 static void expect_then(void) {
   {
-    if (type != TOK_THEN) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_THEN;
+    expect();
     ;
     ;
   };
@@ -1672,11 +1732,8 @@ static void expect_then(void) {
 
 static void expect_var(void) {
   {
-    if (type != TOK_VAR) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_VAR;
+    expect();
     ;
     ;
   };
@@ -1684,11 +1741,8 @@ static void expect_var(void) {
 
 static void expect_while(void) {
   {
-    if (type != TOK_WHILE) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_WHILE;
+    expect();
     ;
     ;
   };
@@ -1696,11 +1750,8 @@ static void expect_while(void) {
 
 static void expect_writechar(void) {
   {
-    if (type != TOK_WRITECHAR) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_WRITECHAR;
+    expect();
     ;
     ;
   };
@@ -1708,11 +1759,8 @@ static void expect_writechar(void) {
 
 static void expect_writeint(void) {
   {
-    if (type != TOK_WRITEINT) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_WRITEINT;
+    expect();
     ;
     ;
   };
@@ -1720,11 +1768,8 @@ static void expect_writeint(void) {
 
 static void expect_writestr(void) {
   {
-    if (type != TOK_WRITESTR) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_WRITESTR;
+    expect();
     ;
     ;
   };
@@ -1732,11 +1777,8 @@ static void expect_writestr(void) {
 
 static void assign(void) {
   {
-    if (type != TOK_ASSIGN) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_ASSIGN;
+    expect();
     ;
     ;
   };
@@ -1744,11 +1786,8 @@ static void assign(void) {
 
 static void comma(void) {
   {
-    if (type != TOK_COMMA) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_COMMA;
+    expect();
     ;
     ;
   };
@@ -1756,11 +1795,8 @@ static void comma(void) {
 
 static void dot(void) {
   {
-    if (type != TOK_DOT) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_DOT;
+    expect();
     ;
     ;
   };
@@ -1768,11 +1804,8 @@ static void dot(void) {
 
 static void equal(void) {
   {
-    if (type != TOK_EQUAL) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_EQUAL;
+    expect();
     ;
     ;
   };
@@ -1780,11 +1813,8 @@ static void equal(void) {
 
 static void lbrack(void) {
   {
-    if (type != TOK_LBRACK) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_LBRACK;
+    expect();
     ;
     ;
   };
@@ -1792,11 +1822,8 @@ static void lbrack(void) {
 
 static void lparen(void) {
   {
-    if (type != TOK_LPAREN) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_LPAREN;
+    expect();
     ;
     ;
   };
@@ -1804,11 +1831,8 @@ static void lparen(void) {
 
 static void rbrack(void) {
   {
-    if (type != TOK_RBRACK) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_RBRACK;
+    expect();
     ;
     ;
   };
@@ -1816,11 +1840,8 @@ static void rbrack(void) {
 
 static void rparen(void) {
   {
-    if (type != TOK_RPAREN) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_RPAREN;
+    expect();
     ;
     ;
   };
@@ -1828,11 +1849,8 @@ static void rparen(void) {
 
 static void semicolon(void) {
   {
-    if (type != TOK_SEMICOLON) {
-      syntax();
-      ;
-    };
-    next();
+    expectedtype = TOK_SEMICOLON;
+    expect();
     ;
     ;
   };
