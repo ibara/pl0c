@@ -76,7 +76,6 @@ var
   loc, { Where we are in the input code }
   symtab size 1048576, { 8 MB, can hold up to 29960 symbols }
   symtype, { For addsymbol }
-  errstr size 35, { error string }
   token size 256, { 255 characters + '\0' }
   type, { token type }
   str size 256, { For cmpstr }
@@ -99,34 +98,6 @@ begin
   writeStr 'pl0c: error: ';
   writeInt line;
   writeStr ': ';
-  writeStr errstr;
-  writeStr ': ';
-
-  if type = TOK_IDENT then
-  begin
-    writeStr token
-  end
-  else if type = TOK_NUMBER then
-  begin
-    writeStr token
-  end
-  else if type = TOK_STRING then
-  begin
-    writeStr token
-  end
-  else if type < 1 then
-  begin
-    writeStr '(null)'
-  end
-  else
-  begin
-    writeChar '''';
-    writeChar type;
-    writeChar ''''
-  end;
-
-  writeChar '\n';
-  exit 1
 end;
 
 procedure setupkeywords;
@@ -421,19 +392,9 @@ begin
     i := i + 1;
     if i = 1048577 then { File too big! }
     begin
-      errstr[0] := 'f';
-      errstr[1] := 'i';
-      errstr[2] := 'l';
-      errstr[3] := 'e';
-      errstr[4] := ' ';
-      errstr[5] := 't';
-      errstr[6] := 'o';
-      errstr[7] := 'o';
-      errstr[8] := ' ';
-      errstr[9] := 'b';
-      errstr[10] := 'i';
-      errstr[11] := 'g';
       call error;
+      writeStr 'file too big\n';
+      exit 1;
     end;
     readChar into ch;
   end;
@@ -448,27 +409,9 @@ begin
   begin
     if raw[loc] = '\0' then
     begin
-      errstr[0] := 'u';
-      errstr[1] := 'n';
-      errstr[2] := 't';
-      errstr[3] := 'e';
-      errstr[4] := 'r';
-      errstr[5] := 'm';
-      errstr[6] := 'i';
-      errstr[7] := 'n';
-      errstr[8] := 'a';
-      errstr[9] := 't';
-      errstr[10] := 'e';
-      errstr[11] := 'd';
-      errstr[12] := ' ';
-      errstr[13] := 'c';
-      errstr[14] := 'o';
-      errstr[15] := 'm';
-      errstr[16] := 'm';
-      errstr[17] := 'e';
-      errstr[18] := 'n';
-      errstr[19] := 't';
-      call error
+      call error;
+      writeStr 'unterminated comment\n';
+      exit 1;
     end
     else if raw[loc] = '\n' then
       line := line + 1;
@@ -504,21 +447,9 @@ begin
         i := i + 1;
         if i = 256 then
         begin
-          errstr[0] := 't';
-          errstr[1] := 'o';
-          errstr[2] := 'k';
-          errstr[3] := 'e';
-          errstr[4] := 'n';
-          errstr[5] := ' ';
-          errstr[6] := 't';
-          errstr[7] := 'o';
-          errstr[8] := 'o';
-          errstr[9] := ' ';
-          errstr[10] := 'l';
-          errstr[11] := 'o';
-          errstr[12] := 'n';
-          errstr[13] := 'g';
-          call error
+          call error;
+          writeStr 'token too long\n';
+          exit 1;
         end;
       end;
     end;
@@ -534,21 +465,9 @@ begin
           i := i + 1;
           if i = 256 then
           begin
-            errstr[0] := 't';
-            errstr[1] := 'o';
-            errstr[2] := 'k';
-            errstr[3] := 'e';
-            errstr[4] := 'n';
-            errstr[5] := ' ';
-            errstr[6] := 't';
-            errstr[7] := 'o';
-            errstr[8] := 'o';
-            errstr[9] := ' ';
-            errstr[10] := 'l';
-            errstr[11] := 'o';
-            errstr[12] := 'n';
-            errstr[13] := 'g';
-            call error
+            call error;
+            writeStr 'token too long\n';
+            exit 1;
           end;
         end;
       end;
@@ -565,21 +484,9 @@ begin
           i := i + 1;
           if i = 256 then
           begin
-            errstr[0] := 't';
-            errstr[1] := 'o';
-            errstr[2] := 'k';
-            errstr[3] := 'e';
-            errstr[4] := 'n';
-            errstr[5] := ' ';
-            errstr[6] := 't';
-            errstr[7] := 'o';
-            errstr[8] := 'o';
-            errstr[9] := ' ';
-            errstr[10] := 'l';
-            errstr[11] := 'o';
-            errstr[12] := 'n';
-            errstr[13] := 'g';
-            call error
+            call error;
+            writeStr 'token too long\n';
+            exit 1;
           end;
         end;
       end;
@@ -594,21 +501,9 @@ begin
         i := i + 1;
         if i = 256 then
         begin
-          errstr[0] := 't';
-          errstr[1] := 'o';
-          errstr[2] := 'k';
-          errstr[3] := 'e';
-          errstr[4] := 'n';
-          errstr[5] := ' ';
-          errstr[6] := 't';
-          errstr[7] := 'o';
-          errstr[8] := 'o';
-          errstr[9] := ' ';
-          errstr[10] := 'l';
-          errstr[11] := 'o';
-          errstr[12] := 'n';
-          errstr[13] := 'g';
-          call error
+          call error;
+          writeStr 'token too long\n';
+          exit 1;
         end;
       end;
     end;
@@ -653,21 +548,9 @@ begin
         i := i + 1;
         if i = 256 then
         begin
-          errstr[0] := 't';
-          errstr[1] := 'o';
-          errstr[2] := 'k';
-          errstr[3] := 'e';
-          errstr[4] := 'n';
-          errstr[5] := ' ';
-          errstr[6] := 't';
-          errstr[7] := 'o';
-          errstr[8] := 'o';
-          errstr[9] := ' ';
-          errstr[10] := 'l';
-          errstr[11] := 'o';
-          errstr[12] := 'n';
-          errstr[13] := 'g';
-          call error
+          call error;
+          writeStr 'token too long\n';
+          exit 1;
         end;
 
         { XXX: sanity checking }
@@ -727,49 +610,15 @@ begin
     end
     else if raw[loc] = '\n' then
     begin
-      errstr[0] := 'u';
-      errstr[1] := 'n';
-      errstr[2] := 't';
-      errstr[3] := 'e';
-      errstr[4] := 'r';
-      errstr[5] := 'm';
-      errstr[6] := 'i';
-      errstr[7] := 'n';
-      errstr[8] := 'a';
-      errstr[9] := 't';
-      errstr[10] := 'e';
-      errstr[11] := 'd';
-      errstr[12] := ' ';
-      errstr[13] := 's';
-      errstr[14] := 't';
-      errstr[15] := 'r';
-      errstr[16] := 'i';
-      errstr[17] := 'n';
-      errstr[18] := 'g';
-      call error
+      call error;
+      writeStr 'unterminated string\n';
+      exit 1;
     end
     else if raw[loc] = '\0' then
     begin
-      errstr[0] := 'u';
-      errstr[1] := 'n';
-      errstr[2] := 't';
-      errstr[3] := 'e';
-      errstr[4] := 'r';
-      errstr[5] := 'm';
-      errstr[6] := 'i';
-      errstr[7] := 'n';
-      errstr[8] := 'a';
-      errstr[9] := 't';
-      errstr[10] := 'e';
-      errstr[11] := 'd';
-      errstr[12] := ' ';
-      errstr[13] := 's';
-      errstr[14] := 't';
-      errstr[15] := 'r';
-      errstr[16] := 'i';
-      errstr[17] := 'n';
-      errstr[18] := 'g';
-      call error
+      call error;
+      writeStr 'unterminated string\n';
+      exit 1;
     end
     else
     begin
@@ -780,22 +629,9 @@ begin
 
     if i > 256 then
     begin
-      errstr[0] := 's';
-      errstr[1] := 't';
-      errstr[2] := 'r';
-      errstr[3] := 'i';
-      errstr[4] := 'n';
-      errstr[5] := 'g';
-      errstr[6] := ' ';
-      errstr[7] := 't';
-      errstr[8] := 'o';
-      errstr[9] := 'o';
-      errstr[10] := ' ';
-      errstr[11] := 'l';
-      errstr[12] := 'o';
-      errstr[13] := 'n';
-      errstr[14] := 'g';
-      call error
+      call error;
+      writeStr 'string too long\n';
+      exit 1;
     end;
 
     if loop # 0 then
@@ -961,26 +797,11 @@ begin
         loc := loc + 1;
         if raw[loc] # '=' then
         begin
-          errstr[0] := 'u';
-          errstr[1] := 'n';
-          errstr[2] := 'k';
-          errstr[3] := 'n';
-          errstr[4] := 'o';
-          errstr[5] := 'w';
-          errstr[6] := 'n';
-          errstr[7] := ' ';
-          errstr[8] := 't';
-          errstr[9] := 'o';
-          errstr[10] := 'k';
-          errstr[11] := 'e';
-          errstr[12] := 'n';
-          errstr[13] := ':';
-          errstr[14] := ' ';
-          errstr[15] := '''';
-          errstr[16] := ':';
-          errstr[17] := raw[loc];
-          errstr[18] := '''';
-          call error
+          call error;
+          writeStr 'unknown token: ''';
+          writeChar raw[loc];
+          writeStr '''\n';
+          exit 1;
         end;
 
         type := TOK_ASSIGN;
@@ -993,25 +814,11 @@ begin
         type := 0
       else
       begin
-        errstr[0] := 'u';
-        errstr[1] := 'n';
-        errstr[2] := 'k';
-        errstr[3] := 'n';
-        errstr[4] := 'o';
-        errstr[5] := 'w';
-        errstr[6] := 'n';
-        errstr[7] := ' ';
-        errstr[8] := 't';
-        errstr[9] := 'o';
-        errstr[10] := 'k';
-        errstr[11] := 'e';
-        errstr[12] := 'n';
-        errstr[13] := ':';
-        errstr[14] := ' ';
-        errstr[15] := '''';
-        errstr[16] := raw[loc];
-        errstr[17] := '''';
-        call error
+        call error;
+        writeStr 'unknown token: ''';
+        writeChar raw[loc];
+        writeStr '''\n';
+        exit 1;
       end;
     end;
   end;
@@ -1244,54 +1051,18 @@ begin
 
     if save = 0 then
     begin
-      errstr[0] := 'u';
-      errstr[1] := 'n';
-      errstr[2] := 'd';
-      errstr[3] := 'e';
-      errstr[4] := 'f';
-      errstr[5] := 'i';
-      errstr[6] := 'n';
-      errstr[7] := 'e';
-      errstr[8] := 'd';
-      errstr[9] := ' ';
-      errstr[10] := 's';
-      errstr[11] := 'y';
-      errstr[12] := 'm';
-      errstr[13] := 'b';
-      errstr[14] := 'o';
-      errstr[15] := 'l';
-      call error
+      call error;
+      writeStr 'undefined symbol: ''';
+      writeStr token;
+      writeStr '''\n';
+      exit 1;
     end;
 
     if symtab[save + 34] = 0 then
     begin
-      errstr[0] := 'w';
-      errstr[1] := 'r';
-      errstr[2] := 'i';
-      errstr[3] := 't';
-      errstr[4] := 'e';
-      errstr[5] := 'S';
-      errstr[6] := 't';
-      errstr[7] := 'r';
-      errstr[8] := ' ';
-      errstr[9] := 'r';
-      errstr[10] := 'e';
-      errstr[11] := 'q';
-      errstr[12] := 'u';
-      errstr[13] := 'i';
-      errstr[14] := 'r';
-      errstr[15] := 'e';
-      errstr[16] := 's';
-      errstr[17] := ' ';
-      errstr[18] := 'a';
-      errstr[19] := 'n';
-      errstr[20] := ' ';
-      errstr[21] := 'a';
-      errstr[22] := 'r';
-        errstr[23] := 'r';
-      errstr[24] := 'a';
-      errstr[25] := 'y';
-      call error
+      call error;
+      writeStr 'writeStr requires an array\n';
+      exit 1;
     end;
 
     writeStr '__writestridx = 0;\n';
@@ -1324,19 +1095,9 @@ end;
 
 procedure syntax;
 begin
-  errstr[0] := 's';
-  errstr[1] := 'y';
-  errstr[2] := 'n';
-  errstr[3] := 't';
-  errstr[4] := 'a';
-  errstr[5] := 'x';
-  errstr[6] := ' ';
-  errstr[7] := 'e';
-  errstr[8] := 'r';
-  errstr[9] := 'r';
-  errstr[10] := 'o';
-  errstr[11] := 'r';
-  call error
+  call error;
+  writeStr 'syntax error\n';
+  exit 1;
 end;
 
 procedure expect_begin;
@@ -1622,29 +1383,9 @@ begin
   symtabcnt := symtabcnt + 1;
   if symtabcnt = 29961 then
   begin
-    errstr[0] := 's';
-    errstr[1] := 'y';
-    errstr[2] := 'm';
-    errstr[3] := 'b';
-    errstr[4] := 'o';
-    errstr[5] := 'l';
-    errstr[6] := ' ';
-    errstr[7] := 't';
-    errstr[8] := 'a';
-    errstr[9] := 'b';
-    errstr[10] := 'l';
-    errstr[11] := 'e';
-    errstr[12] := ' ';
-    errstr[13] := 'e';
-    errstr[14] := 'x';
-    errstr[15] := 'h';
-    errstr[16] := 'a';
-    errstr[17] := 'u';
-    errstr[18] := 's';
-    errstr[19] := 't';
-    errstr[20] := 'e';
-    errstr[21] := 'd';
-    call error
+    call error;
+    writeStr 'symbol table exhausted\n';
+    exit 1;
   end;
 end;
 
@@ -1673,40 +1414,20 @@ begin
 
   if save = 0 then
   begin
-    errstr[0] := 'u';
-    errstr[1] := 'n';
-    errstr[2] := 'd';
-    errstr[3] := 'e';
-    errstr[4] := 'f';
-    errstr[5] := 'i';
-    errstr[6] := 'n';
-    errstr[7] := 'e';
-    errstr[8] := 'd';
-    errstr[9] := ' ';
-    errstr[10] := 's';
-    errstr[11] := 'y';
-    errstr[12] := 'm';
-    errstr[13] := 'b';
-    errstr[14] := 'o';
-    errstr[15] := 'l';
-    call error
+    call error;
+    writeStr 'undefined symbol: ''';
+    writeStr token;
+    writeStr '''\n';
+    exit 1;
   end;
 
   if symtab[save + 34] = 0 then
   begin
-    errstr[0] := 'n';
-    errstr[1] := 'o';
-    errstr[2] := 't';
-    errstr[3] := ' ';
-    errstr[4] := 'a';
-    errstr[5] := 'n';
-    errstr[6] := ' ';
-    errstr[7] := 'a';
-    errstr[8] := 'r';
-    errstr[9] := 'r';
-    errstr[10] := 'a';
-    errstr[11] := 'y';
-    call error
+    call error;
+    writeStr 'not an array: ''';
+    writeStr token;
+    writeStr '''\n';
+    exit 1;
   end;
 end;
 
@@ -1718,66 +1439,22 @@ begin
   i := 35 * (symtabcnt - 1);
   if symtab[i + 32] # TOK_VAR then
   begin
-    errstr[0] := 'a';
-    errstr[1] := 'r';
-    errstr[2] := 'r';
-    errstr[3] := 'a';
-    errstr[4] := 'y';
-    errstr[5] := 's';
-    errstr[6] := ' ';
-    errstr[7] := 'm';
-    errstr[8] := 'u';
-    errstr[9] := 's';
-    errstr[10] := 't';
-    errstr[11] := ' ';
-    errstr[12] := 'b';
-    errstr[13] := 'e';
-    errstr[14] := ' ';
-    errstr[15] := 'd';
-    errstr[16] := 'e';
-    errstr[17] := 'c';
-    errstr[18] := 'l';
-    errstr[19] := 'a';
-    errstr[20] := 'r';
-    errstr[21] := 'e';
-    errstr[22] := 'd';
-    errstr[23] := ' ';
-    errstr[24] := 'w';
-    errstr[25] := 'i';
-    errstr[26] := 't';
-    errstr[27] := 'h';
-    errstr[28] := ' ';
-    errstr[29] := '"';
-    errstr[30] := 'v';
-    errstr[31] := 'a';
-    errstr[32] := 'r';
-    errstr[33] := '"';
-    call error
+    call error;
+    writeStr 'arrays must be declared with \"var\": ''';
+    writeStr token;
+    writeStr '''\n';
+    exit 1;
   end;
 
   { XXX: sanity check }
   symtab[i + 34] := value;
   if value < 1 then
   begin
-    errstr[0] := 'i';
-    errstr[1] := 'n';
-    errstr[2] := 'v';
-    errstr[3] := 'a';
-    errstr[4] := 'l';
-    errstr[5] := 'i';
-    errstr[6] := 'd';
-    errstr[7] := ' ';
-    errstr[8] := 'a';
-    errstr[9] := 'r';
-    errstr[10] := 'r';
-    errstr[11] := 'a';
-    errstr[12] := 'y';
-    errstr[13] := ' ';
-    errstr[14] := 's';
-    errstr[15] := 'i';
-    errstr[16] := 'z';
-    errstr[17] := 'e';
-    call error
+    call error;
+    writeStr 'invalid array size: ''';
+    writeStr token;
+    writeStr '''\n';
+    exit 1;
   end;
 end;
 
@@ -1827,105 +1504,41 @@ begin
 
   if save = 0 then
   begin
-    errstr[0] := 'u';
-    errstr[1] := 'n';
-    errstr[2] := 'd';
-    errstr[3] := 'e';
-    errstr[4] := 'f';
-    errstr[5] := 'i';
-    errstr[6] := 'n';
-    errstr[7] := 'e';
-    errstr[8] := 'd';
-    errstr[9] := ' ';
-    errstr[10] := 's';
-    errstr[11] := 'y';
-    errstr[12] := 'm';
-    errstr[13] := 'b';
-    errstr[14] := 'o';
-    errstr[15] := 'l';
-    call error
+    call error;
+    writeStr 'undefined symbol: ''';
+    writeStr token;
+    writeStr '''\n';
+    exit 1;
   end;
 
   if symtype = CHECK_LHS then
   begin
     if symtab[save + 32] # TOK_VAR then
     begin
-      errstr[0] := 'm';
-      errstr[1] := 'u';
-      errstr[2] := 's';
-      errstr[3] := 't';
-      errstr[4] := ' ';
-      errstr[5] := 'b';
-      errstr[6] := 'e';
-      errstr[7] := ' ';
-      errstr[8] := 'a';
-      errstr[9] := ' ';
-      errstr[10] := 'v';
-      errstr[11] := 'a';
-      errstr[12] := 'r';
-      errstr[13] := 'i';
-      errstr[14] := 'a';
-      errstr[15] := 'b';
-      errstr[16] := 'l';
-      errstr[17] := 'e';
-      call error
+      call error;
+      writeStr 'must be a variable: ''';
+      writeStr token;
+      writeStr '''\n';
+      exit 1;
     end;
   end
   else if symtype = CHECK_RHS then
   begin
     if symtab[save + 32] = TOK_PROCEDURE then
     begin
-      errstr[0] := 'm';
-      errstr[1] := 'u';
-      errstr[2] := 's';
-      errstr[3] := 't';
-      errstr[4] := ' ';
-      errstr[5] := 'n';
-      errstr[6] := 'o';
-      errstr[7] := 't';
-      errstr[8] := ' ';
-      errstr[9] := 'b';
-      errstr[10] := 'e';
-      errstr[11] := ' ';
-      errstr[12] := 'a';
-      errstr[13] := ' ';
-      errstr[14] := 'p';
-      errstr[15] := 'r';
-      errstr[16] := 'o';
-      errstr[17] := 'c';
-      errstr[18] := 'e';
-      errstr[19] := 'd';
-      errstr[20] := 'u';
-      errstr[21] := 'r';
-      errstr[22] := 'e';
-      call error
+      call error;
+      writeStr 'must not be a procedure: ''';
+      writeStr token;
+      writeStr '''\n';
+      exit 1;
     end
     else if symtab[save + 32] = TOK_FORWARD then
     begin
-      errstr[0] := 'm';
-      errstr[1] := 'u';
-      errstr[2] := 's';
-      errstr[3] := 't';
-      errstr[4] := ' ';
-      errstr[5] := 'n';
-      errstr[6] := 'o';
-      errstr[7] := 't';
-      errstr[8] := ' ';
-      errstr[9] := 'b';
-      errstr[10] := 'e';
-      errstr[11] := ' ';
-      errstr[12] := 'a';
-      errstr[13] := ' ';
-      errstr[14] := 'p';
-      errstr[15] := 'r';
-      errstr[16] := 'o';
-      errstr[17] := 'c';
-      errstr[18] := 'e';
-      errstr[19] := 'd';
-      errstr[20] := 'u';
-      errstr[21] := 'r';
-      errstr[22] := 'e';
-      call error
+      call error;
+      writeStr 'must not be a procedure: ''';
+      writeStr token;
+      writeStr '''\n';
+      exit 1;
     end;
   end
   else if symtype = CHECK_CALL then
@@ -1934,26 +1547,11 @@ begin
     begin
       if symtab[save + 32] # TOK_FORWARD then
       begin
-        errstr[0] := 'm';
-        errstr[1] := 'u';
-        errstr[2] := 's';
-        errstr[3] := 't';
-        errstr[4] := ' ';
-        errstr[5] := 'b';
-        errstr[6] := 'e';
-        errstr[7] := ' ';
-        errstr[8] := 'a';
-        errstr[9] := ' ';
-        errstr[10] := 'p';
-        errstr[11] := 'r';
-        errstr[12] := 'o';
-        errstr[13] := 'c';
-        errstr[14] := 'e';
-        errstr[15] := 'd';
-        errstr[16] := 'u';
-        errstr[17] := 'r';
-        errstr[18] := 'e';
-        call error
+        call error;
+        writeStr 'must be a procedure: ''';
+        writeStr token;
+        writeStr '''\n';
+        exit 1;
       end;
     end;
   end;
@@ -2149,26 +1747,11 @@ begin
     end
     else
     begin
-      errstr[0] := 'i';
-      errstr[1] := 'n';
-      errstr[2] := 'v';
-      errstr[3] := 'a';
-      errstr[4] := 'l';
-      errstr[5] := 'i';
-      errstr[6] := 'd';
-      errstr[7] := ' ';
-      errstr[8] := 'c';
-      errstr[9] := 'o';
-      errstr[10] := 'n';
-      errstr[11] := 'd';
-      errstr[12] := 'i';
-      errstr[13] := 't';
-      errstr[14] := 'i';
-      errstr[15] := 'o';
-      errstr[16] := 'n';
-      errstr[17] := 'a';
-      errstr[18] := 'l';
-      call error
+      call error;
+      writeStr 'invalid conditional: ''';
+      writeStr token;
+      writeStr '''\n';
+      exit 1;
     end;
 
     call expression;
@@ -2296,42 +1879,11 @@ begin
     end
     else
     begin
-      errstr[0] := 'w';
-      errstr[1] := 'r';
-      errstr[2] := 'i';
-      errstr[3] := 't';
-      errstr[4] := 'e';
-      errstr[5] := 'S';
-      errstr[6] := 't';
-      errstr[7] := 'r';
-      errstr[8] := ' ';
-      errstr[9] := 't';
-      errstr[10] := 'a';
-      errstr[11] := 'k';
-      errstr[12] := 'e';
-      errstr[13] := 's';
-      errstr[14] := ' ';
-      errstr[15] := 'a';
-      errstr[16] := 'n';
-      errstr[17] := ' ';
-      errstr[18] := 'a';
-      errstr[19] := 'r';
-      errstr[20] := 'r';
-      errstr[21] := 'a';
-      errstr[22] := 'y';
-      errstr[23] := ' ';
-      errstr[24] := 'o';
-      errstr[25] := 'r';
-      errstr[26] := ' ';
-      errstr[27] := 'a';
-      errstr[28] := ' ';
-      errstr[29] := 's';
-      errstr[30] := 't';
-      errstr[31] := 'r';
-      errstr[32] := 'i';
-      errstr[33] := 'n';
-      errstr[34] := 'g';
-      call error
+      call error;
+      writeStr 'writeStr takes an array or a string: ''';
+      writeStr token;
+      writeStr '''\n';
+      exit 1;
     end;
   end
   else if type = TOK_READINT then
@@ -2374,29 +1926,9 @@ procedure block;
 begin
   if depth > 1 then
   begin
-    errstr[0] := 'n';
-    errstr[1] := 'e';
-    errstr[2] := 's';
-    errstr[3] := 't';
-    errstr[4] := 'i';
-    errstr[5] := 'n';
-    errstr[6] := 'g';
-    errstr[7] := ' ';
-    errstr[8] := 'd';
-    errstr[9] := 'e';
-    errstr[10] := 'p';
-    errstr[11] := 't';
-    errstr[12] := 'h';
-    errstr[13] := ' ';
-    errstr[14] := 'e';
-    errstr[15] := 'x';
-    errstr[16] := 'c';
-    errstr[17] := 'e';
-    errstr[18] := 'e';
-    errstr[19] := 'd';
-    errstr[20] := 'e';
-    errstr[21] := 'd';
-    call error
+    call error;
+    writeStr 'nesting depth exceeded\n';
+    exit 1;
   end;
 
   depth := depth + 1;
@@ -2535,33 +2067,9 @@ begin
 
   if depth < 0 then
   begin
-    errstr[0] := 'n';
-    errstr[1] := 'e';
-    errstr[2] := 's';
-    errstr[3] := 't';
-    errstr[4] := 'i';
-    errstr[5] := 'n';
-    errstr[6] := 'g';
-    errstr[7] := ' ';
-    errstr[8] := 'd';
-    errstr[9] := 'e';
-    errstr[10] := 'p';
-    errstr[11] := 't';
-    errstr[12] := 'h';
-    errstr[13] := ' ';
-    errstr[14] := 'f';
-    errstr[15] := 'e';
-    errstr[16] := 'l';
-    errstr[17] := 'l';
-    errstr[18] := ' ';
-    errstr[19] := 'b';
-    errstr[20] := 'e';
-    errstr[21] := 'l';
-    errstr[22] := 'o';
-    errstr[23] := 'w';
-    errstr[24] := ' ';
-    errstr[25] := '0';
     call error;
+    writeStr 'nesting depth fell below 0\n';
+    exit 1;
   end;
 end;
 
@@ -2610,34 +2118,11 @@ begin
 
   if type # 0 then
   begin
-    errstr[0] := 'e';
-    errstr[1] := 'x';
-    errstr[2] := 't';
-    errstr[3] := 'r';
-    errstr[4] := 'a';
-    errstr[5] := ' ';
-    errstr[6] := 't';
-    errstr[7] := 'o';
-    errstr[8] := 'k';
-    errstr[9] := 'e';
-    errstr[10] := 'n';
-    errstr[11] := 's';
-    errstr[12] := ' ';
-    errstr[13] := 'a';
-    errstr[14] := 't';
-    errstr[15] := ' ';
-    errstr[16] := 'e';
-    errstr[17] := 'n';
-    errstr[18] := 'd';
-    errstr[19] := ' ';
-    errstr[20] := 'o';
-    errstr[21] := 'f';
-    errstr[22] := ' ';
-    errstr[23] := 'f';
-    errstr[24] := 'i';
-    errstr[25] := 'l';
-    errstr[26] := 'e';
     call error;
+    writeStr 'extra tokens at end of file: ''';
+    writeStr token;
+    writeStr '''\n';
+    exit 1;
   end;
 
   call cg_end;
