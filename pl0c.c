@@ -457,17 +457,6 @@ static void ident(void) {
               loop = 1;
               token[i] = raw[loc];
               i = i + 1;
-              if (i == 256) {
-                {
-                  error();
-                  ;
-                  (void)fprintf(stdout, "token too long\n");
-                  ;
-                  exit(1);
-                  ;
-                  ;
-                };
-              };
               ;
             };
           };
@@ -483,17 +472,6 @@ static void ident(void) {
                   loop = 1;
                   token[i] = raw[loc];
                   i = i + 1;
-                  if (i == 256) {
-                    {
-                      error();
-                      ;
-                      (void)fprintf(stdout, "token too long\n");
-                      ;
-                      exit(1);
-                      ;
-                      ;
-                    };
-                  };
                   ;
                 };
               };
@@ -512,17 +490,6 @@ static void ident(void) {
                   loop = 1;
                   token[i] = raw[loc];
                   i = i + 1;
-                  if (i == 256) {
-                    {
-                      error();
-                      ;
-                      (void)fprintf(stdout, "token too long\n");
-                      ;
-                      exit(1);
-                      ;
-                      ;
-                    };
-                  };
                   ;
                 };
               };
@@ -539,20 +506,20 @@ static void ident(void) {
               loop = 1;
               token[i] = raw[loc];
               i = i + 1;
-              if (i == 256) {
-                {
-                  error();
-                  ;
-                  (void)fprintf(stdout, "token too long\n");
-                  ;
-                  exit(1);
-                  ;
-                  ;
-                };
-              };
               ;
             };
           };
+          ;
+        };
+      };
+      if (i >= 256) {
+        {
+          error();
+          ;
+          (void)fprintf(stdout, "token too long\n");
+          ;
+          exit(1);
+          ;
           ;
         };
       };

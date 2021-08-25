@@ -445,12 +445,6 @@ begin
         loop := 1;
         token[i] := raw[loc];
         i := i + 1;
-        if i = 256 then
-        begin
-          call error;
-          writeStr 'token too long\n';
-          exit 1;
-        end;
       end;
     end;
 
@@ -463,12 +457,6 @@ begin
           loop := 1;
           token[i] := raw[loc];
           i := i + 1;
-          if i = 256 then
-          begin
-            call error;
-            writeStr 'token too long\n';
-            exit 1;
-          end;
         end;
       end;
     end;
@@ -482,12 +470,6 @@ begin
           loop := 1;
           token[i] := raw[loc];
           i := i + 1;
-          if i = 256 then
-          begin
-            call error;
-            writeStr 'token too long\n';
-            exit 1;
-          end;
         end;
       end;
     end;
@@ -499,13 +481,14 @@ begin
         loop := 1;
         token[i] := raw[loc];
         i := i + 1;
-        if i = 256 then
-        begin
-          call error;
-          writeStr 'token too long\n';
-          exit 1;
-        end;
       end;
+    end;
+
+    if i >= 256 then
+    begin
+      call error;
+      writeStr 'token too long\n';
+      exit 1;
     end;
 
     if loop # 0 then
