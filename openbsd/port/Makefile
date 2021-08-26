@@ -1,7 +1,7 @@
 # $OpenBSD$
 
 COMMENT =	simple self-hosting PL/0 compiler
-DISTNAME =	pl0c-1.0.1
+DISTNAME =	pl0c-1.0.2
 CATEGORIES =	lang
 
 # ISC
