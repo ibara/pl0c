@@ -447,6 +447,12 @@ begin
         loop := 1;
         token[i] := raw[loc];
         i := i + 1;
+        if i = 32 then
+        begin
+          call error;
+          writeStr 'identifier too long\n';
+          exit 1
+        end;
       end;
     end;
 
@@ -459,6 +465,12 @@ begin
           loop := 1;
           token[i] := raw[loc];
           i := i + 1;
+          if i = 32 then
+          begin
+            call error;
+            writeStr 'identifier too long\n';
+            exit 1
+          end;
         end;
       end;
     end;
@@ -472,6 +484,12 @@ begin
           loop := 1;
           token[i] := raw[loc];
           i := i + 1;
+          if i = 32 then
+          begin
+            call error;
+            writeStr 'identifier too long\n';
+            exit 1
+          end;
         end;
       end;
     end;
@@ -483,6 +501,12 @@ begin
         loop := 1;
         token[i] := raw[loc];
         i := i + 1;
+        if i = 32 then
+        begin
+          call error;
+          writeStr 'identifier too long\n';
+          exit 1
+        end;
       end;
     end;
 
@@ -524,10 +548,10 @@ begin
         loop := 1;
         token[i] := raw[loc];
         i := i + 1;
-        if i = 256 then
+        if i = 21 then
         begin
           call error;
-          writeStr 'token too long\n';
+          writeStr 'number too long\n';
           exit 1;
         end;
 
@@ -582,8 +606,20 @@ begin
         { XXX: sanity check }
         token[i] := '\\';
         i := i + 1;
+        if i = 255 then
+        begin
+          call error;
+          writeStr 'string too long\n';
+          exit 1;
+        end;
         token[i] := raw[loc];
-        i := i + 1
+        i := i + 1;
+        if i = 255 then
+        begin
+          call error;
+          writeStr 'number too long\n';
+          exit 1;
+        end;
       end;
     end
     else if raw[loc] = '\n' then
@@ -602,14 +638,13 @@ begin
     begin
       { XXX: sanity check }
       token[i] := raw[loc];
-      i := i + 1
-    end;
-
-    if i > 256 then
-    begin
-      call error;
-      writeStr 'string too long\n';
-      exit 1;
+      i := i + 1;
+      if i = 255 then
+      begin
+        call error;
+        writeStr 'string too long\n';
+        exit 1;
+      end;
     end;
 
     if loop # 0 then

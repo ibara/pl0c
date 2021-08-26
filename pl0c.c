@@ -459,6 +459,16 @@ static void ident(void) {
               loop = 1;
               token[i] = raw[loc];
               i = i + 1;
+              if (i == 32) {
+                {
+                  error();
+                  ;
+                  (void)fprintf(stdout, "identifier too long\n");
+                  ;
+                  exit(1);
+                  ;
+                };
+              };
               ;
             };
           };
@@ -474,6 +484,16 @@ static void ident(void) {
                   loop = 1;
                   token[i] = raw[loc];
                   i = i + 1;
+                  if (i == 32) {
+                    {
+                      error();
+                      ;
+                      (void)fprintf(stdout, "identifier too long\n");
+                      ;
+                      exit(1);
+                      ;
+                    };
+                  };
                   ;
                 };
               };
@@ -492,6 +512,16 @@ static void ident(void) {
                   loop = 1;
                   token[i] = raw[loc];
                   i = i + 1;
+                  if (i == 32) {
+                    {
+                      error();
+                      ;
+                      (void)fprintf(stdout, "identifier too long\n");
+                      ;
+                      exit(1);
+                      ;
+                    };
+                  };
                   ;
                 };
               };
@@ -508,6 +538,16 @@ static void ident(void) {
               loop = 1;
               token[i] = raw[loc];
               i = i + 1;
+              if (i == 32) {
+                {
+                  error();
+                  ;
+                  (void)fprintf(stdout, "identifier too long\n");
+                  ;
+                  exit(1);
+                  ;
+                };
+              };
               ;
             };
           };
@@ -551,11 +591,11 @@ static void number(void) {
               loop = 1;
               token[i] = raw[loc];
               i = i + 1;
-              if (i == 256) {
+              if (i == 21) {
                 {
                   error();
                   ;
-                  (void)fprintf(stdout, "token too long\n");
+                  (void)fprintf(stdout, "number too long\n");
                   ;
                   exit(1);
                   ;
@@ -613,8 +653,31 @@ static void string(void) {
             {
               token[i] = '\\';
               i = i + 1;
+              if (i == 255) {
+                {
+                  error();
+                  ;
+                  (void)fprintf(stdout, "string too long\n");
+                  ;
+                  exit(1);
+                  ;
+                  ;
+                };
+              };
               token[i] = raw[loc];
               i = i + 1;
+              if (i == 255) {
+                {
+                  error();
+                  ;
+                  (void)fprintf(stdout, "number too long\n");
+                  ;
+                  exit(1);
+                  ;
+                  ;
+                };
+              };
+              ;
             };
           };
           ;
@@ -645,19 +708,20 @@ static void string(void) {
             {
               token[i] = raw[loc];
               i = i + 1;
+              if (i == 255) {
+                {
+                  error();
+                  ;
+                  (void)fprintf(stdout, "string too long\n");
+                  ;
+                  exit(1);
+                  ;
+                  ;
+                };
+              };
+              ;
             };
           };
-        };
-      };
-      if (i > 256) {
-        {
-          error();
-          ;
-          (void)fprintf(stdout, "string too long\n");
-          ;
-          exit(1);
-          ;
-          ;
         };
       };
       if (loop != 0) {
