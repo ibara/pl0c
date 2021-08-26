@@ -486,13 +486,6 @@ begin
       end;
     end;
 
-    if i >= 256 then
-    begin
-      call error;
-      writeStr 'token too long\n';
-      exit 1;
-    end;
-
     if loop # 0 then
       loc := loc + 1;
   end;

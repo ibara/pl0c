@@ -82,7 +82,7 @@ static long line;
 static void expression(void);
 static void error(void) {
   {
-    (void)fprintf(stdout, "pl0c: error: ");
+    (void)fprintf(stdout, "\npl0c: error: ");
     ;
     (void)fprintf(stdout, "%ld", (long)(line));
     ;
@@ -511,17 +511,6 @@ static void ident(void) {
               ;
             };
           };
-          ;
-        };
-      };
-      if (i >= 256) {
-        {
-          error();
-          ;
-          (void)fprintf(stdout, "token too long\n");
-          ;
-          exit(1);
-          ;
           ;
         };
       };
