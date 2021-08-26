@@ -876,7 +876,7 @@ end;
 
 procedure cg_end;
 begin
-  writeStr '/* PL/0 compiler 1.0.0 */\n'
+  writeStr '/* PL/0 compiler 1.0.2 */\n'
 end;
 
 procedure cg_epilogue;

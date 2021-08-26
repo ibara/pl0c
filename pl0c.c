@@ -1083,7 +1083,7 @@ static void cg_crlf(void) {
 
 static void cg_end(void) {
   {
-    (void)fprintf(stdout, "/* PL/0 compiler 1.0.0 */\n");
+    (void)fprintf(stdout, "/* PL/0 compiler 1.0.2 */\n");
     ;
   };
 }
@@ -3105,4 +3105,4 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-/* PL/0 compiler 1.0.0 */
+/* PL/0 compiler 1.0.2 */
