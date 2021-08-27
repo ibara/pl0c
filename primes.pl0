@@ -1,6 +1,6 @@
 { Sieve of Eratosthenes }
 
-var i, n, p, a size 100;
+var i, n, a size 100;
 
 begin
   a[0] := 0; a[1] := 0;
@@ -29,4 +29,3 @@ begin
     i := i + 1;
   end;
 end.
-
