@@ -22,7 +22,7 @@ same directory as `pl0c`. This will be improved.
 
 Version
 -------
-The current version is `1.0.1`.
+The current version is `1.0.2`.
 
 You can find a source tarball in the Releases tab.
 
