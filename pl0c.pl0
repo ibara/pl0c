@@ -43,6 +43,7 @@ const
   TOK_READINT	= 'R',
   TOK_READCHAR	= 'h',
   TOK_INTO	= 'n',
+  TOK_PACKED	= 'p',
   TOK_SIZE	= 's',
   TOK_EXIT	= 'X',
   TOK_AND	= '&',
@@ -87,6 +88,7 @@ var
   keywordidx size 64, { Index into keywords table }
   depth, { Track nested subroutines }
   proc, { Track when we're inside a subroutine }
+  ispacked, { If we have a packed array }
   value, { For number processing }
   line { line number }
 ;
@@ -325,7 +327,17 @@ begin
   keywords[i + 6] := 'd';
   keywords[i + 7] := '\0';
   i := i + 8;
-  keywordidx[50] := -1;
+  keywordidx[50] := TOK_PACKED;
+  keywordidx[51] := i;
+  keywords[i + 0] := 'p';
+  keywords[i + 1] := 'a';
+  keywords[i + 2] := 'c';
+  keywords[i + 3] := 'k';
+  keywords[i + 4] := 'e';
+  keywords[i + 5] := 'd';
+  keywords[i + 6] := '\0';
+  i := i + 7;
+  keywordidx[52] := -1
 end;
 
 procedure findkeyword;
@@ -1015,7 +1027,10 @@ begin
   if proc = 0 then
     writeStr 'static ';
 
-  writeStr 'long ';
+  if ispacked = 1 then
+    writeStr 'char '
+  else
+    writeStr 'long ';
   writeStr token
 end;
 
@@ -1255,6 +1270,12 @@ end;
 procedure expect_odd;
 begin
   expectedtype := TOK_ODD;
+  call expect;
+end;
+
+procedure expect_packed;
+begin
+  expectedtype := TOK_PACKED;
   call expect;
 end;
 
@@ -1988,6 +2009,12 @@ begin
   if type = TOK_VAR then
   begin
     call expect_var;
+    ispacked := 0;
+    if type = TOK_PACKED then
+    begin
+      call expect_packed;
+      ispacked := 1
+    end;
     if type = TOK_IDENT then
     begin
       symtype := TOK_VAR;
@@ -1995,6 +2022,7 @@ begin
       call cg_var
     end;
     call expect_ident;
+    ispacked := 0;
     if type = TOK_SIZE then
     begin
       call expect_size;
@@ -2004,6 +2032,15 @@ begin
         call cg_array;
       end;
       call expect_number;
+    end
+    else
+    begin
+      if ispacked = 1 then
+      begin
+        call error;
+        writeStr 'packed can only refer to arrays';
+        exit 1
+      end;
     end;
     call cg_semicolon;
     while type = TOK_COMMA do

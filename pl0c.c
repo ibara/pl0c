@@ -35,6 +35,7 @@ static const long TOK_WRITESTR = 'S';
 static const long TOK_READINT = 'R';
 static const long TOK_READCHAR = 'h';
 static const long TOK_INTO = 'n';
+static const long TOK_PACKED = 'p';
 static const long TOK_SIZE = 's';
 static const long TOK_EXIT = 'X';
 static const long TOK_AND = '&';
@@ -76,6 +77,7 @@ static long keywords[256];
 static long keywordidx[64];
 static long depth;
 static long proc;
+static long ispacked;
 static long value;
 static long line;
 
@@ -316,8 +318,17 @@ static void setupkeywords(void) {
     keywords[i + 6] = 'd';
     keywords[i + 7] = '\0';
     i = i + 8;
-    keywordidx[50] = -1;
-    ;
+    keywordidx[50] = TOK_PACKED;
+    keywordidx[51] = i;
+    keywords[i + 0] = 'p';
+    keywords[i + 1] = 'a';
+    keywords[i + 2] = 'c';
+    keywords[i + 3] = 'k';
+    keywords[i + 4] = 'e';
+    keywords[i + 5] = 'd';
+    keywords[i + 6] = '\0';
+    i = i + 7;
+    keywordidx[52] = -1;
   };
 }
 
@@ -1340,8 +1351,13 @@ static void cg_var(void) {
       (void)fprintf(stdout, "static ");
       ;
     };
-    (void)fprintf(stdout, "long ");
-    ;
+    if (ispacked == 1) {
+      (void)fprintf(stdout, "char ");
+      ;
+    } else {
+      (void)fprintf(stdout, "long ");
+      ;
+    };
     __writestridx = 0;
     while (token[__writestridx] != '\0' && __writestridx < 256)
       (void)fputc((unsigned char)token[__writestridx++], stdout);
@@ -1723,6 +1739,15 @@ static void expect_number(void) {
 static void expect_odd(void) {
   {
     expectedtype = TOK_ODD;
+    expect();
+    ;
+    ;
+  };
+}
+
+static void expect_packed(void) {
+  {
+    expectedtype = TOK_PACKED;
     expect();
     ;
     ;
@@ -2914,6 +2939,14 @@ static void block(void) {
       {
         expect_var();
         ;
+        ispacked = 0;
+        if (type == TOK_PACKED) {
+          {
+            expect_packed();
+            ;
+            ispacked = 1;
+          };
+        };
         if (type == TOK_IDENT) {
           {
             symtype = TOK_VAR;
@@ -2925,6 +2958,7 @@ static void block(void) {
         };
         expect_ident();
         ;
+        ispacked = 0;
         if (type == TOK_SIZE) {
           {
             expect_size();
@@ -2940,6 +2974,20 @@ static void block(void) {
             };
             expect_number();
             ;
+            ;
+          };
+        } else {
+          {
+            if (ispacked == 1) {
+              {
+                error();
+                ;
+                (void)fprintf(stdout, "packed can only refer to arrays");
+                ;
+                exit(1);
+                ;
+              };
+            };
             ;
           };
         };
