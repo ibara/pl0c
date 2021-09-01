@@ -1028,7 +1028,7 @@ begin
     writeStr 'static ';
 
   if ispacked = 1 then
-    writeStr 'char '
+    writeStr 'unsigned char '
   else
     writeStr 'long ';
   writeStr token

@@ -62,18 +62,18 @@ static const long TOK_RPAREN = ')';
 static const long TOK_LBRACK = '[';
 static const long TOK_RBRACK = ']';
 static const long TOK_STRING = '"';
-static char raw[1048576];
+static unsigned char raw[1048576];
 static long loc;
 static long symtab[1048576];
 static long symtype;
-static char token[256];
+static unsigned char token[256];
 static long type;
 static long expectedtype;
 static long typetoprint;
-static char str[256];
+static unsigned char str[256];
 static long symtabcnt;
 static long ret;
-static char keywords[256];
+static unsigned char keywords[256];
 static long keywordidx[64];
 static long depth;
 static long proc;
@@ -1352,7 +1352,7 @@ static void cg_var(void) {
       ;
     };
     if (ispacked == 1) {
-      (void)fprintf(stdout, "char ");
+      (void)fprintf(stdout, "unsigned char ");
       ;
     } else {
       (void)fprintf(stdout, "long ");
