@@ -73,18 +73,18 @@ const
 ;
 
 var
-  raw size 1048576, { 8 MB, can hold up to 1 MB source code files }
+  packed raw size 1048576, { 1 MB }
   loc, { Where we are in the input code }
   symtab size 1048576, { 8 MB, can hold up to 29960 symbols }
   symtype, { For addsymbol }
-  token size 256, { 255 characters + '\0' }
+  packed token size 256, { 255 characters + '\0' }
   type, { token type }
   expectedtype, { expected token type }
   typetoprint, { For printtype }
-  str size 256, { For cmpstr }
+  packed str size 256, { For cmpstr }
   symtabcnt, { To keep track of number of symtab entries }
   ret, { Return code for procedures that need one }
-  keywords size 256, { Keywords table }
+  packed keywords size 256, { Keywords table }
   keywordidx size 64, { Index into keywords table }
   depth, { Track nested subroutines }
   proc, { Track when we're inside a subroutine }
@@ -2022,7 +2022,6 @@ begin
       call cg_var
     end;
     call expect_ident;
-    ispacked := 0;
     if type = TOK_SIZE then
     begin
       call expect_size;
@@ -2046,6 +2045,12 @@ begin
     while type = TOK_COMMA do
     begin
       call comma;
+      ispacked := 0;
+      if type = TOK_PACKED then
+      begin
+        call expect_packed;
+        ispacked := 1
+      end;
       if type = TOK_IDENT then
       begin
         symtype := TOK_VAR;
@@ -2060,7 +2065,16 @@ begin
         begin
           call arraysize;
           call cg_array;
-          call expect_number
+        end;
+        call expect_number
+      end
+      else
+      begin
+        if ispacked = 1 then
+        begin
+          call error;
+          writeStr 'packed can only refer to arrays';
+          exit 1
         end;
       end;
       call cg_semicolon

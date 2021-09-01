@@ -62,18 +62,18 @@ static const long TOK_RPAREN = ')';
 static const long TOK_LBRACK = '[';
 static const long TOK_RBRACK = ']';
 static const long TOK_STRING = '"';
-static long raw[1048576];
+static char raw[1048576];
 static long loc;
 static long symtab[1048576];
 static long symtype;
-static long token[256];
+static char token[256];
 static long type;
 static long expectedtype;
 static long typetoprint;
-static long str[256];
+static char str[256];
 static long symtabcnt;
 static long ret;
-static long keywords[256];
+static char keywords[256];
 static long keywordidx[64];
 static long depth;
 static long proc;
@@ -2958,7 +2958,6 @@ static void block(void) {
         };
         expect_ident();
         ;
-        ispacked = 0;
         if (type == TOK_SIZE) {
           {
             expect_size();
@@ -2996,6 +2995,14 @@ static void block(void) {
         while (type == TOK_COMMA) {
           comma();
           ;
+          ispacked = 0;
+          if (type == TOK_PACKED) {
+            {
+              expect_packed();
+              ;
+              ispacked = 1;
+            };
+          };
           if (type == TOK_IDENT) {
             {
               symtype = TOK_VAR;
@@ -3017,7 +3024,21 @@ static void block(void) {
                   ;
                   cg_array();
                   ;
-                  expect_number();
+                  ;
+                };
+              };
+              expect_number();
+              ;
+            };
+          } else {
+            {
+              if (ispacked == 1) {
+                {
+                  error();
+                  ;
+                  (void)fprintf(stdout, "packed can only refer to arrays");
+                  ;
+                  exit(1);
                   ;
                 };
               };
