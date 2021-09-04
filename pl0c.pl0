@@ -404,7 +404,7 @@ begin
   begin
     raw[i] := ch;
     i := i + 1;
-    if i = 1048577 then { File too big! }
+    if i = 1048576 then { File too big! }
     begin
       call error;
       writeStr 'file too big\n';

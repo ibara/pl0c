@@ -406,7 +406,7 @@ static void readin(void) {
     while (ch != -1) {
       raw[i] = ch;
       i = i + 1;
-      if (i == 1048577) {
+      if (i == 1048576) {
         {
           error();
           ;
