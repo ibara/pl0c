@@ -38,6 +38,7 @@ static const long TOK_INTO = 'n';
 static const long TOK_PACKED = 'p';
 static const long TOK_SIZE = 's';
 static const long TOK_EXIT = 'X';
+static const long TOK_SYSTEM = 'Y';
 static const long TOK_AND = '&';
 static const long TOK_OR = '|';
 static const long TOK_NOT = '~';
@@ -328,7 +329,17 @@ static void setupkeywords(void) {
     keywords[i + 5] = 'd';
     keywords[i + 6] = '\0';
     i = i + 7;
-    keywordidx[52] = -1;
+    keywordidx[52] = TOK_SYSTEM;
+    keywordidx[53] = i;
+    keywords[i + 0] = 's';
+    keywords[i + 1] = 'y';
+    keywords[i + 2] = 's';
+    keywords[i + 3] = 't';
+    keywords[i + 4] = 'e';
+    keywords[i + 5] = 'm';
+    keywords[i + 6] = '\0';
+    i = i + 7;
+    keywordidx[54] = -1;
   };
 }
 
@@ -1345,6 +1356,19 @@ static void cg_symbol(void) {
   };
 }
 
+static void cg_system(void) {
+  {
+    (void)fprintf(stdout, "(void) system(");
+    ;
+    __writestridx = 0;
+    while (token[__writestridx] != '\0' && __writestridx < 256)
+      (void)fputc((unsigned char)token[__writestridx++], stdout);
+    ;
+    (void)fprintf(stdout, ");\n");
+    ;
+  };
+}
+
 static void cg_var(void) {
   {
     if (proc == 0) {
@@ -1793,6 +1817,15 @@ static void expect_size(void) {
 static void expect_string(void) {
   {
     expectedtype = TOK_STRING;
+    expect();
+    ;
+    ;
+  };
+}
+
+static void expect_system(void) {
+  {
+    expectedtype = TOK_SYSTEM;
     expect();
     ;
     ;
@@ -2845,6 +2878,28 @@ static void statement(void) {
                             ;
                             cg_semicolon();
                             ;
+                          };
+                        } else {
+                          if (type == TOK_SYSTEM) {
+                            {
+                              expect_system();
+                              ;
+                              if (type != TOK_STRING) {
+                                {
+                                  error();
+                                  ;
+                                  (void)fprintf(stdout,
+                                                "system takes a string\n");
+                                  ;
+                                  exit(1);
+                                  ;
+                                };
+                              };
+                              cg_system();
+                              ;
+                              expect_string();
+                              ;
+                            };
                           };
                         };
                       };
